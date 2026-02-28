@@ -16,6 +16,10 @@ const langOptions: [string, LangCode][] = Object.entries(languagesByName);
 export default function () {
   const { langPair, updateLangPair, swapLangs } = useTranslation();
 
+  const handleSwap = () => {
+    swapLangs(true);
+  }
+
   return (
     <AppBarActions>
       <div className="flex gap-2 h-full items-center justify-center select-none">
@@ -34,7 +38,7 @@ export default function () {
           </SelectContent>
         </Select>
 
-        <ArrowRightLeft className="cursor-pointer" onClick={swapLangs} />
+        <ArrowRightLeft className="cursor-pointer" onClick={handleSwap} />
 
         <Select value={langPair.target} onValueChange={(newVal: LangCode) => updateLangPair({ target: newVal })}>
           <SelectTrigger size="sm" className="w-32 p-2 capitalize">

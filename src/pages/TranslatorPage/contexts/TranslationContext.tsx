@@ -17,7 +17,7 @@ export interface TranslationContextValue {
   updateLangPair: UpdateLangPairFn;
   sourceText: string;
   updateSourceText: UpdateSourceTextFn;
-  swapLangs: () => void;
+  swapLangs: (swapTranslation?: boolean) => void;
 }
 
 export const TranslationContext = createContext<TranslationContextValue | null>(null);
@@ -55,14 +55,16 @@ export const TranslationProvider = ({ children }: PropsWithChildren) => {
       }
   }, [settings.isAutoTranslateEnabled]);
 
-  const swapLangs = useCallback(() => {
-    if (langPair.source === 'auto') return;
-    if (translationResult.translation) {
-      setSourceText(translationResult.translation);
-      setTextForQuery(translationResult.translation);
-    }
-    setLangPair({ source: langPair.target, target: langPair.source });
-  }, [translationResult.translation])
+  const swapLangs = useCallback((swapTranslation: boolean = false) => {
+    setLangPair(prev => {
+      if (prev.source === 'auto') return prev;
+      if (swapTranslation && translationResult.translation) {
+        setSourceText(translationResult.translation);
+        setTextForQuery(translationResult.translation);
+      }
+      return { source: prev.target, target: prev.source };
+    });
+  }, [translationResult.translation]);
 
   const translateCurrent = useCallback(() => setTextForQuery(sourceText), [sourceText]);
 
