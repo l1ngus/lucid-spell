@@ -1,4 +1,5 @@
 import { commands } from '@/bindings';
+import { AppSettingsSchema } from '@/app/types/AppSettings';
 import GroupHeading from './GroupHeading';
 import GroupWrapper from './GroupWrapper';
 import SwitchProperty from '../Properties/SwitchProperty';
@@ -26,6 +27,13 @@ export default function ({ settings, changeSettingsProperty }: SettingsGroupProp
   return (
     <GroupWrapper>
       <GroupHeading>General</GroupHeading>
+      <SelectProperty label='App theme'
+        defaultValue={settings.theme}
+        selectItems={AppSettingsSchema.shape.theme.unwrap().options.map(theme => ({
+          label: theme,
+          value: theme
+        }))}
+        onChange={value => changeSettingsProperty('theme', value)} />
       <SelectProperty label='Voice'
         defaultValue={settings.voice}
         selectItems={voices.map(voice => ({
