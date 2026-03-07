@@ -5,15 +5,13 @@ import { type LangDetectionResult } from '@/app/types/LangDetectionResult';
 import type { LangCode } from "@/app/types/Langs";
 import { getTranslationPrompt } from "@/app/consts/prompts";
 import useSettings from "@/app/hooks/useSettings";
+import { type TranslateResponse, TranslateResponseScheme } from '../types/TranslateResponse'
+
 
 export interface TranslateParams {
   term: string;
   sourceLang: LangCode | 'auto';
   targetLang: LangCode;
-}
-
-export interface TranslateResponse {
-  translation: string;
 }
 
 export default () => {
@@ -25,7 +23,7 @@ export default () => {
     console.error("Couldn't find selected llm profile.");
   }, [settings.activeLlmProfileId, settings.llmProfiles])
 
-  const translateViaLlm = async ({ term, sourceLang, targetLang }: TranslateParams) => {
+  const translateViaLlm = async ({ term, sourceLang, targetLang }: TranslateParams): Promise<TranslateResponse> => {
     if (!llmProfile)
       throw new Error("AI model profile is not selected.")
 
@@ -38,11 +36,12 @@ export default () => {
     if (response.status === 'error')
       throw new Error(response.error);
 
-    const result = response.data
+    const cleanStr = response.data
       .replace(/^(```|""")\w*\n/, "")
       .replace(/(```|""")$/, "");
 
-    return JSON.parse(result) as Promise<TranslateResponse>;
+    const result = TranslateResponseScheme.parse(JSON.parse(cleanStr));
+    return result;
   }
 
   const detectLang = async (text: string, whitelist?: LangCode[]) => {

@@ -1,10 +1,11 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
-import useTranslator, { type TranslateParams, type TranslateResponse } from './useTranslator';
+import useTranslator, { type TranslateParams } from './useTranslator';
+import { type TranslateResponse } from '../types/TranslateResponse';
 
 
 export type UseTranslateQueryOptions = TranslateParams;
 export type UseTranslateQueryResult = {
-  translation: string;
+  response: TranslateResponse;
 } & Pick<UseQueryResult<TranslateResponse>, 'isFetching' | 'isError' | 'error'>
 
 export default ({ term, sourceLang, targetLang }: UseTranslateQueryOptions): UseTranslateQueryResult => {
@@ -23,10 +24,10 @@ export default ({ term, sourceLang, targetLang }: UseTranslateQueryOptions): Use
     retry: false,
   })
 
-  const translation = data?.translation ?? '';
+  const response = data ?? { translation: '', sourceCorrection: '' };
 
   return {
-    translation,
+    response,
     isFetching,
     isError,
     error

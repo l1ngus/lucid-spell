@@ -8,7 +8,7 @@ import useSettings from '@/app/hooks/useSettings';
 import useUserMeta from '@/app/hooks/useUserMeta';
 
 type UpdateLangPairFn = (value: Partial<LangPair>) => void;
-type UpdateSourceTextFn = (value: string) => void;
+type UpdateSourceTextFn = (value: string, withDebounce?: boolean) => void;
 
 export interface TranslationContextValue {
   translationResult: UseTranslateQueryResult;
@@ -43,12 +43,16 @@ export const TranslationProvider = ({ children }: PropsWithChildren) => {
     });
   }, [])
 
-  const updateSourceText: UpdateSourceTextFn = useCallback((value) => {
+  const updateSourceText: UpdateSourceTextFn = useCallback((value, withDebounce = true) => {
     setSourceText(value);
     const trimmedValue = value.trim();
     if (settings.isAutoTranslateEnabled)
-      if (trimmedValue)
-        setTextForQueryDebounced(trimmedValue);
+      if (trimmedValue) {
+        if (withDebounce)
+          setTextForQueryDebounced(trimmedValue);
+        else
+          setTextForQuery(trimmedValue);
+      }
       else {
         preventChangingTextForQuery();
         setTextForQuery('');
@@ -58,13 +62,13 @@ export const TranslationProvider = ({ children }: PropsWithChildren) => {
   const swapLangs = useCallback((swapTranslation: boolean = false) => {
     setLangPair(prev => {
       if (prev.source === 'auto') return prev;
-      if (swapTranslation && translationResult.translation) {
-        setSourceText(translationResult.translation);
-        setTextForQuery(translationResult.translation);
+      if (swapTranslation && translationResult.response.translation) {
+        setSourceText(translationResult.response.translation);
+        setTextForQuery(translationResult.response.translation);
       }
       return { source: prev.target, target: prev.source };
     });
-  }, [translationResult.translation]);
+  }, [translationResult.response.translation]);
 
   const translateCurrent = useCallback(() => setTextForQuery(sourceText), [sourceText]);
 

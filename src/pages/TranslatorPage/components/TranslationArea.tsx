@@ -8,12 +8,12 @@ import useTextToSpeech from '../hooks/useTextToSpeech';
 
 export default function () {
   const {
-    translationResult: { translation, isFetching, isError, error },
+    translationResult: { response, isFetching, isError, error },
   } = useTranslation();
   const { speak } = useTextToSpeech();
 
   const handleSpeak = () => {
-    speak(translation);
+    speak(response.translation);
   }
 
   return (
@@ -25,7 +25,7 @@ export default function () {
         <Textarea className={cn(
           'flex-1 resize-none min-h-40',
           isError && 'text-red-400'
-        )} readOnly value={isError ? error?.message : translation} />
+        )} readOnly value={isError ? error?.message : response.translation} />
         <div className="absolute bottom-1.5 right-1.5 flex items-center gap-2 p-0.5">
           <Volume2 onClick={handleSpeak} className='cursor-pointer' />
         </div>
