@@ -1,6 +1,6 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
-import useTranslator, { type TranslateParams } from './useTranslator';
-import { type TranslateResponse } from '../types/TranslateResponse';
+import useTranslator, { type TranslateParams } from '../useTranslator';
+import { type TranslateResponse } from '../../types/TranslateResponse';
 
 
 export type UseTranslateQueryOptions = TranslateParams;

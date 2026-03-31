@@ -2,7 +2,7 @@ import { useMemo, useCallback, useState, createContext, type PropsWithChildren }
 import { useQueryClient } from '@tanstack/react-query';
 import type { LangPair } from '@/app/types/Langs';
 import { DETECT_AND_SWAP_QUERY_KEY } from '../hooks/useDetectAndSwap';
-import useTranslateQuery, { type UseTranslateQueryResult } from '../hooks/useTranslateQuery';
+import useTranslateQuery, { type UseTranslateQueryResult } from '../hooks/queries/useTranslateQuery';
 import { useDebouncedCallback } from '@/app/hooks/useDebouncedCallback';
 import useSettings from '@/app/hooks/useSettings';
 import useUserMeta from '@/app/hooks/useUserMeta';

@@ -1,5 +1,6 @@
 import TranslatorBarActions from "./TranslatorBarActions";
 import TranslatorContainer from './TransatorContainer';
+import AdditionalInfo from "./AdditionalInfo/AdditionalInfo";
 import { TranslationProvider } from "../contexts/TranslationContext";
 
 export default function () {
@@ -7,6 +8,7 @@ export default function () {
     <TranslationProvider>
       <TranslatorBarActions />
       <TranslatorContainer />
+      <AdditionalInfo />
     </TranslationProvider>
   )
 }
