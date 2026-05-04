@@ -2,22 +2,27 @@ import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { commands } from '@/bindings';
 import useActiveLlmProfile from '../useActiveLlmProfile';
 import { LangCode } from '@/app/types/Langs';
-import { TranslateOthersResponseScheme, TranslateOthersWithPartsResponseScheme } from '../../types/TranslateResponse';
+import { TranslateOthersResponseScheme, TranslateOthersWithPartsResponseScheme, TranslateOthersWithPartsResponse, TranslateOthersResponse } from '../../types/TranslateResponse';
+import { getOtherTranslationsPrompt } from '@/app/consts/prompts';
+
+type OtherTranslationsResponse = TranslateOthersResponse | TranslateOthersWithPartsResponse;
 
 export interface UseOtherTranslationsQueryOptions {
   sourceText: string;
   translatedText: string;
   sourceLang: LangCode | 'auto';
   targetLang: LangCode;
-  withParts: boolean; // with parts of speech
+  // withParts: boolean; // with parts of speech
 }
-// export type UseOtherTranslationsQueryResult = 
+export type UseOtherTranslationsQueryResult = {
+  response: OtherTranslationsResponse;
+} & Pick<UseQueryResult<OtherTranslationsResponse>, 'isFetching' | 'isError' | 'error'>
 
-export default () => {
+export default (translateOptions: UseOtherTranslationsQueryOptions): UseOtherTranslationsQueryResult => {
   const llmProfile = useActiveLlmProfile();
 
-  const fetchOtherTranslations = async ({ sourceText, translatedText, sourceLang, targetLang, withParts }: UseOtherTranslationsQueryOptions) => {
-    const prompt = withParts ? "withparts" : "without";
+  const fetchOtherTranslations = async ({ sourceText, translatedText, sourceLang, targetLang }: UseOtherTranslationsQueryOptions): Promise<OtherTranslationsResponse> => {
+    const prompt = getOtherTranslationsPrompt({ sourceText, translatedText, sourceLang, targetLang });
     const response = await commands.askLlm([{
       role: 'user',
       content: prompt
@@ -28,8 +33,27 @@ export default () => {
       .replace(/^(```|""")\w*\n/, "")
       .replace(/(```|""")$/, "");
     const parsedStr = JSON.parse(cleanStr);
+    const simpleResult = TranslateOthersResponseScheme.safeParse(parsedStr);
 
-    const result = TranslateOthersWithPartsResponseScheme.parse(parsedStr); /// It should check another response scheme!!!!!!
+    if (simpleResult.success)
+      return simpleResult.data;
+    const result = TranslateOthersWithPartsResponseScheme.parse(parsedStr);
     return result;
   }
+
+  const isEnabled = !!translateOptions.translatedText;
+
+  const { data, isFetching, isError, error } = useQuery({
+    queryKey: ['transalte-other-key',
+      translateOptions.translatedText,
+      translateOptions.sourceText,
+      translateOptions.sourceLang,
+      translateOptions.targetLang
+    ],
+    queryFn: () => fetchOtherTranslations(translateOptions),
+    enabled: isEnabled,
+    retry: false,
+  })
+
+  return { response: data ?? { otherTranslations: [] }, isFetching, isError, error };
 }

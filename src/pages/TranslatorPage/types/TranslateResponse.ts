@@ -17,7 +17,7 @@ export type TranslateOthersResponse = z.infer<typeof TranslateOthersResponseSche
 // response with other translations with parts of speech
 export const TranslateOthersWithPartsResponseScheme = z.object({
   otherTranslations: z.array(z.object({
-    parts: z.string(),
+    part: z.string(),
     translation: z.string()
   }))
 });
