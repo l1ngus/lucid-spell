@@ -24,7 +24,7 @@ export default (translateOptions: UseOtherTranslationsQueryOptions): UseOtherTra
 
   const fetchOtherTranslations = async ({ sourceText, translatedText, sourceLang, targetLang }: UseOtherTranslationsQueryOptions): Promise<OtherTranslationsResponse> => {
     const prompt = getOtherTranslationsPrompt({ sourceText, translatedText, sourceLang, targetLang });
-    console.log('Alt request')
+    console.log(`Alt request; isEn: ${translateOptions.isEnabled}`);
     const response = await commands.askLlm([{
       role: 'user',
       content: prompt
@@ -52,7 +52,6 @@ export default (translateOptions: UseOtherTranslationsQueryOptions): UseOtherTra
   const { data, isFetching, isError, error } = useQuery({
     queryKey: ['transalte-other-key',
       translateOptions.translatedText,
-      translateOptions.sourceText,
       translateOptions.sourceLang,
       translateOptions.targetLang
     ],

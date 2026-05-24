@@ -20,12 +20,10 @@ interface TrGroup {
 export default ({ className }: OtherTranslationsProps) => {
   const { settings } = useSettings();
   const { translationResult, langPair, sourceText } = useTranslation();
-  const [isQueryEnabled, setIsQueryEnabled] = useState(settings.isAutoAltTransFetchEnabled);
+  const [isManualFetch, setIsManualFetch] = useState(false);
 
-  useEffect(() => {
-    if (settings.isAutoAltTransFetchEnabled) return
-    setIsQueryEnabled(false)
-  }, [sourceText]);
+  const shouldAutoFetch = settings.isAutoAltTransFetchEnabled && !!translationResult.response.translation;
+  const isEnabled = shouldAutoFetch || isManualFetch;
 
   const { response, isFetching } = useOtherTranslationsQuery({
     sourceText,
@@ -33,9 +31,12 @@ export default ({ className }: OtherTranslationsProps) => {
     sourceLang: langPair.source,
     targetLang: langPair.target,
     maxSourceLength: settings.isAutoAltTransFetchEnabled ? 50 : undefined,
-    isEnabled: isQueryEnabled
+    isEnabled
   });
 
+  useEffect(() => {
+    if (!settings.isAutoAltTransFetchEnabled) setIsManualFetch(false);
+  }, [sourceText]);
 
   const isWithParts = response.otherTranslations.length > 0
     && typeof (response.otherTranslations[0]) !== 'string'
@@ -59,9 +60,9 @@ export default ({ className }: OtherTranslationsProps) => {
     <div className={cn(className)}>
       {settings.isAutoAltTransFetchEnabled
         ? <p className="text-center ">Other translations</p>
-        : <p onClick={() => setIsQueryEnabled(true)} className="m-auto w-fit px-2 rounded-md cursor-pointer bg-accent select-none">Other translations</p>
+        : <p onClick={() => setIsManualFetch(true)} className="m-auto w-fit px-2 rounded-md cursor-pointer bg-accent select-none">Other translations</p>
       }
-      {isQueryEnabled && !isFetching && parsedTranslations.map(group => (
+      {isEnabled && !isFetching && parsedTranslations.map(group => (
         <div key={group.part}>
           <p>{group.part}</p>
           <TransList translations={group.translations} />
