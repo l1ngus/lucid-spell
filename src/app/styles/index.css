@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
-@custom-variant gtk-theme (&:is(.gtk-theme *));
+/* @custom-variant gtk-theme (&:is(.gtk-theme *)); */
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -137,43 +137,6 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-
-.gtk-theme {
-  --background: var(--gtk-bg);
-  --foreground: var(--gtk-fg);
-
-  /* UI Containers (Cards, Popovers) */
-  --card: var(--gtk-base);
-  --card-foreground: var(--gtk-text);
-  --popover: var(--gtk-base);
-  --popover-foreground: var(--gtk-text);
-
-  /* Primary Branding (Using your Accent) */
-  --primary: var(--gtk-accent);
-  --primary-foreground: var(--gtk-accent-fg);
-  /* --primary: var(--gtk-bg); */
-  /* --primary-foreground: var(--gtk-fg); */
-
-  /* Secondary / Muted */
-  --secondary: var(--gtk-disabled-bg);
-  --secondary-foreground: var(--gtk-disabled-fg);
-  --muted: var(--gtk-disabled-bg);
-  --muted-foreground: var(--gtk-disabled-fg);
-
-  /* Functional Colors */
-  --accent: var(--gtk-accent);
-  --accent-foreground: var(--gtk-accent-fg);
-
-  --destructive: var(--gtk-error);
-  --destructive-foreground: var(--gtk-bg);
-  /* Usually light text on error */
-
-  /* Borders and Inputs */
-  --border: var(--gtk-accent);
-  --input: var(--gtk-accent);
-  --ring: var(--gtk-accent);
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -187,3 +150,27 @@
     margin: var(--body-margin);
   }
 }
+
+/*
+.gtk-theme {
+  --background: var(--gtk-bg);
+  --foreground: var(--gtk-fg);
+  --card: var(--gtk-base);
+  --card-foreground: var(--gtk-text);
+  --popover: var(--gtk-base);
+  --popover-foreground: var(--gtk-text);
+  --primary: var(--gtk-accent);
+  --primary-foreground: var(--gtk-accent-fg);
+  --secondary: var(--gtk-disabled-bg);
+  --secondary-foreground: var(--gtk-disabled-fg);
+  --muted: var(--gtk-disabled-bg);
+  --muted-foreground: var(--gtk-disabled-fg);
+  --accent: var(--gtk-accent);
+  --accent-foreground: var(--gtk-accent-fg);
+  --destructive: var(--gtk-error);
+  --destructive-foreground: var(--gtk-bg);
+  --border: var(--gtk-accent);
+  --input: var(--gtk-accent);
+  --ring: var(--gtk-accent);
+}
+*/

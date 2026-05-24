@@ -68,7 +68,6 @@ pub fn run() {
         })
         .invoke_handler(builder.invoke_handler())
         .invoke_handler(tauri::generate_handler![
-            commands::theme::get_system_theme_colors,
             commands::lang::detect_language,
             commands::llm::set_llm_config,
             commands::llm::ask_llm,

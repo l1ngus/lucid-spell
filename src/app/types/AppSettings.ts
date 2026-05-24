@@ -2,7 +2,7 @@ import z from "zod";
 import { ModelProfileSchema } from "./ModelProfile";
 
 export const AppSettingsSchema = z.object({
-  theme: z.enum(['dark', 'light', 'gtk-theme']).default('dark'),
+  theme: z.enum(['dark', 'light']).default('dark'), // 'gtk-theme'
   voice: z.string().default('en-US-AvaMultilingualNeural'),
 
   activeLlmProfileId: z.string().default(''),
