@@ -19,6 +19,10 @@ export const AppSettingsSchema = z.object({
   proxyPort: z.string().default(''),
   proxyUser: z.string().default(''),
   proxyPass: z.string().default(''),
+
+  clearShortcut: z.array(z.string()).default([]),
+  swapLangsShortcut: z.array(z.string()).default([]),
+  applyCorrectionShortcut: z.array(z.string()).default([]),
 });
 
 export type AppSettings = z.infer<typeof AppSettingsSchema>;

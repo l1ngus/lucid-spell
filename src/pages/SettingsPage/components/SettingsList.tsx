@@ -5,6 +5,7 @@ import GeneralGroup from "./SettingsGroups/GeneralGroup";
 import ProxyGroup from "./SettingsGroups/ProxyGroup";
 import { Separator } from "@/components/ui/separator";
 import TranslationGroup from "./SettingsGroups/TranslationGroup";
+import ShortcutsGroup from "./SettingsGroups/ShortcutsGroup";
 
 export default function () {
   const { settings, changeSettingsProperty, restoreSettings } = useSettings();
@@ -20,6 +21,8 @@ export default function () {
       <TranslationGroup settings={settings} changeSettingsProperty={changeSettingsProperty} />
       <Separator className="my-2" />
       <ProxyGroup settings={settings} changeSettingsProperty={changeSettingsProperty} />
+      <Separator className="my-2" />
+      <ShortcutsGroup settings={settings} changeSettingsProperty={changeSettingsProperty} />
 
       <br />
     </div>
