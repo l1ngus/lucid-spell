@@ -10,9 +10,11 @@ import useTextToSpeech from '../hooks/useTextToSpeech';
 export default function () {
   const { settings } = useSettings();
   const detectAndSwapLangs = useDetectAndSwap();
-  const { translateCurrent, updateSourceText, langPair, sourceText, translationResult } = useTranslation();
+  const { translateCurrent, updateSourceText, langPair, swapLangs, sourceText, translationResult
+  } = useTranslation();
   const { speak } = useTextToSpeech();
   const inputTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const pressedKeysRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     const handleFocus = () => {
@@ -39,13 +41,31 @@ export default function () {
     speak(sourceText);
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    pressedKeysRef.current.add(e.key.toLowerCase());
+
+    if (settings.clearShortcut.every(key => pressedKeysRef.current.has(key.toLowerCase())))
+      updateSourceText('');
+    if (settings.swapLangsShortcut.every(key => pressedKeysRef.current.has(key.toLowerCase())))
+      swapLangs(true);
+    if (settings.applyCorrectionShortcut.every(key => pressedKeysRef.current.has(key.toLowerCase())))
+      handleApplySuggestion() // this function checks if sourceCorrection is empty
+  }
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    pressedKeysRef.current.delete(e.key.toLowerCase());
+  }
+
   return (
     <div className="relative">
       <Textarea
         className='flex-1 resize-none min-h-40 pb-8'
         ref={inputTextareaRef}
         value={sourceText}
-        onChange={handleChange} />
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        onKeyUp={handleKeyUp}
+      />
       <div className="absolute bottom-1.5 right-1.5 left-1.5 flex justify-between items-center gap-2">
         {translationResult.response.sourceCorrection &&
           <Tooltip className="min-w-0 shrink" hint={<p>Did you mean: <b>{translationResult.response.sourceCorrection}</b></p>}>
