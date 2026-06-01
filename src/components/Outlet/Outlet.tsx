@@ -4,11 +4,6 @@ import { PageContext } from '@/app/contexts/PageContext';
 
 export default function () {
   const { currentPage } = useContext(PageContext);
-
-  return (
-    <>
-      {currentPage === 'translator' && <pages.translator.Component />}
-      {currentPage === 'settings' && <pages.settings.Component />}
-    </>
-  )
+  const PageComponent = pages[currentPage].Component;
+  return <PageComponent />
 }
