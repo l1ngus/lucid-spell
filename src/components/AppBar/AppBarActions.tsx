@@ -1,4 +1,4 @@
-import { useState, useEffect, type PropsWithChildren } from 'react';
+import { useState, useLayoutEffect, useEffect, type PropsWithChildren } from 'react';
 import { createPortal } from 'react-dom';
 import { APP_BAR_ACTIONS_ID } from './consts';
 
@@ -6,12 +6,16 @@ interface AppBarActionsProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export default function ({ children, ...props }: PropsWithChildren<AppBarActionsProps>) {
-  const [container, setContainer] = useState<null | HTMLElement>(null);
+  const [container, setContainer] = useState<null | HTMLElement>(() =>
+    document.getElementById(APP_BAR_ACTIONS_ID)
+  );
 
-  useEffect(() => {
-    const el = document.getElementById(APP_BAR_ACTIONS_ID);
-    setContainer(el);
-  }, []);
+  useLayoutEffect(() => {
+    if (!container) {
+      const el = document.getElementById(APP_BAR_ACTIONS_ID);
+      if (el) setContainer(el);
+    }
+  }, [container]);
 
   useEffect(() => {
     if (!container) return;
