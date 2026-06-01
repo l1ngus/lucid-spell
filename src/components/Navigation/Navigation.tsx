@@ -21,7 +21,7 @@ export default function ({ className }: { className?: string }) {
                 ? "text-foreground dark:text-foreground"
                 : "text-muted-foreground hover:text-foreground "
             )}
-            size={24}
+            size={26}
             onClick={() => { if (currentPage !== pageKey) changePage(pageKey) }} />
         )
       }

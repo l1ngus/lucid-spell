@@ -11,7 +11,7 @@ export default function () {
         <div />
         <h1 className="text-2xl font-bold">Settings</h1>
         <div className="flex justify-end">
-          <Button className="font-bold rounded-xl" variant="outline" size="sm"
+          <Button className="font-bold rounded-lg" variant="outline" size="sm"
             disabled={isSaved} onClick={saveSettings}>
             Save
           </Button>

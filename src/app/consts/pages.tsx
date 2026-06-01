@@ -1,4 +1,4 @@
-import { HomeIcon, SettingsIcon } from "lucide-react";
+import { HomeIcon, SettingsIcon, BookText } from "lucide-react";
 import SettingsPage from "@/pages/SettingsPage";
 import TranslatorPage from "@/pages/TranslatorPage";
 
@@ -10,6 +10,10 @@ export const pages = {
   translator: {
     Component: TranslatorPage,
     Icon: HomeIcon
+  },
+  dictionaries: {
+    Component: TranslatorPage,
+    Icon: BookText
   }
 };
 
