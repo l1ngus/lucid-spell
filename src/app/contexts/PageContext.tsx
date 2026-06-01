@@ -1,12 +1,12 @@
 import { createContext, useState, type PropsWithChildren } from "react";
-import { type Page } from '@/app/consts/pages';
+import { type PageKey } from '@/app/consts/pages';
 
 export interface PageContextValue {
-  currentPage: Page;
-  changePage: (page: Page) => void
+  currentPage: PageKey;
+  changePage: (page: PageKey) => void
 }
 
-const defaultPage: Page = 'translator';
+const defaultPage: PageKey = 'translator';
 
 export const PageContext = createContext<PageContextValue>({
   currentPage: defaultPage,
@@ -14,7 +14,7 @@ export const PageContext = createContext<PageContextValue>({
 });
 
 export const PageProvider = ({ children }: PropsWithChildren) => {
-  const [currentPage, setCurrentPage] = useState<Page>(defaultPage);
+  const [currentPage, setCurrentPage] = useState<PageKey>(defaultPage);
   // const changePage = (page: Page) => setCurrentPage(page);
   return (
     <PageContext.Provider value={{ currentPage, changePage: setCurrentPage }} >

@@ -1,11 +1,17 @@
+import { HomeIcon, SettingsIcon } from "lucide-react";
 import SettingsPage from "@/pages/SettingsPage";
 import TranslatorPage from "@/pages/TranslatorPage";
 
-const pages = {
-  settings: <SettingsPage />,
-  translator: <TranslatorPage />
+export const pages = {
+  settings: {
+    Component: SettingsPage,
+    Icon: SettingsIcon
+  },
+  translator: {
+    Component: TranslatorPage,
+    Icon: HomeIcon
+  }
 };
 
-export type Page = keyof typeof pages;
-
-export default pages;
+export type PageKey = keyof typeof pages;
+export type PageValue = (typeof pages)[PageKey]

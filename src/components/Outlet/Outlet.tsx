@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import pages from '@/app/consts/pages';
+import { pages } from '@/app/consts/pages';
 import { PageContext } from '@/app/contexts/PageContext';
 
 export default function () {
@@ -7,8 +7,8 @@ export default function () {
 
   return (
     <>
-      {currentPage === 'translator' && pages['translator']}
-      {currentPage === 'settings' && pages['settings']}
+      {currentPage === 'translator' && <pages.translator.Component />}
+      {currentPage === 'settings' && <pages.settings.Component />}
     </>
   )
 }
