@@ -75,7 +75,7 @@ export default () => {
           </div>
           <div className="space-y-1">
             <Label htmlFor="description">Description</Label>
-            <Textarea id="description" value={description} onChange={e => setDescription(e.target.value)} />
+            <Textarea className="min-h-9 py-0.5" id="description" value={description} onChange={e => setDescription(e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
