@@ -7,11 +7,11 @@ export interface DictionaryPair {
 export interface DictionaryMeta {
   id: string
   name: string
-  description: string
+  description?: string
+  sourceLang?: string
+  targetLang?: string
   createdAt: number
   updatedAt: number
-  sourceLang: string
-  targetLang: string
 }
 
 export interface Dictionary {

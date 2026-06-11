@@ -1,9 +1,12 @@
 import DictionariesBarActions from "./DictionariesBarActions"
+import { DictionariesViewProvider } from "../contexts/DictionariesViewContext"
+import ViewOutlet from "./ViewOutlet"
 
 export default () => {
   return (
-    <>
-      < DictionariesBarActions />
-    </>
+    <DictionariesViewProvider>
+      <DictionariesBarActions />
+      <ViewOutlet />
+    </DictionariesViewProvider>
   )
 }
