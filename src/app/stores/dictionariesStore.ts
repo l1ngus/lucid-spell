@@ -64,7 +64,7 @@ export async function deleteDictionary(id: string): Promise<void> {
 
 export async function addPair(
   dictionaryId: string,
-  pair: Pick<DictionaryPair, 'source' | 'target'>
+  pair: Pick<DictionaryPair, 'source' | 'target' | 'sourceLang' | 'targetLang'>
 ): Promise<DictionaryPair | null> {
   const dicts = await getAllDictionaries();
   const dict = dicts.find(d => d.meta.id === dictionaryId);

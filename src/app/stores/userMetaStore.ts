@@ -3,7 +3,7 @@ import type { LangPair } from '../types/Langs';
 import { DEFAULT_USER_META } from '../consts/defaultStoresValues';
 
 export interface UserMeta {
-  lastLangPair: LangPair
+  lastLangPair: LangPair;
 }
 
 const store = new LazyStore('user-meta.json');

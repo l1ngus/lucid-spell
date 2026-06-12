@@ -1,7 +1,11 @@
+import { LangName } from "./Langs"
+
 export interface DictionaryPair {
   id: string
   source: string
   target: string
+  sourceLang?: LangName
+  targetLang?: LangName
 }
 
 export interface DictionaryMeta {
@@ -10,6 +14,7 @@ export interface DictionaryMeta {
   description?: string
   sourceLang?: string
   targetLang?: string
+
   createdAt: number
   updatedAt: number
 }
