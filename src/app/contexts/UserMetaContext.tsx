@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, createContext, type PropsWithChildren } from "react";
 import { setMetaItem, getAllMetaItems, type UserMeta } from "../stores/userMetaStore";
-import { DEFAULT_USER_META } from '@/app/consts/defaultStoresValues';
+import { UserMetaSchema } from '@/app/types/UserMeta';
 
 type GetUserMetaFn = <K extends keyof UserMeta>(key: K) => UserMeta[K];
 type SetUserMetaFn = <K extends keyof UserMeta>(key: K, value: UserMeta[K]) => void;
@@ -14,7 +14,7 @@ export const UserMetaContext = createContext<UserMetaContextValue | null>(null);
 
 
 export const UserMetaProvider = ({ children }: PropsWithChildren) => {
-  const userMetaRef = useRef<UserMeta>(DEFAULT_USER_META);
+  const userMetaRef = useRef<UserMeta>(UserMetaSchema.parse({}));
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
