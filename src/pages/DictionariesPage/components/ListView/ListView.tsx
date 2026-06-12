@@ -9,7 +9,17 @@ export default () => {
   const [dictionaries, setDictionaries] = useState<Dictionary[]>([]);
 
   useEffect(() => {
-    getAllDictionaries().then(dicts => setDictionaries(dicts));
+    getAllDictionaries().then(dicts => {
+      const sorted = [...dicts].sort((a, b) =>
+        b.meta.updatedAt - a.meta.updatedAt
+      );
+      const favIndex = sorted.findIndex(d => d.meta.isFavorites);
+      if (favIndex !== -1) {
+        const [fav] = sorted.splice(favIndex, 1);
+        sorted.unshift(fav);
+      }
+      setDictionaries(sorted);
+    });
   }, []);
 
   return (

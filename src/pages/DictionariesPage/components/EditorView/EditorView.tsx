@@ -62,8 +62,10 @@ export default () => {
 
   const hasChanges = name !== dict.meta.name
     || description !== (dict.meta.description ?? "")
-    || sourceLang !== (dict.meta.sourceLang ?? "")
-    || targetLang !== (dict.meta.targetLang ?? "");
+    || (!dict.meta.isFavorites && (
+      sourceLang !== (dict.meta.sourceLang ?? "")
+      || targetLang !== (dict.meta.targetLang ?? "")
+    ));
 
   return (
     <div className="p-4 space-y-6 max-w-2xl mx-[5%]">
@@ -71,28 +73,32 @@ export default () => {
         <div className="space-y-3">
           <div className="space-y-1">
             <Label htmlFor="name">Name</Label>
-            <Input id="name" value={name} onChange={e => setName(e.target.value)} />
+            <Input disabled={dict.meta.isFavorites} id="name" value={name} onChange={e => setName(e.target.value)} />
           </div>
           <div className="space-y-1">
             <Label htmlFor="description">Description</Label>
-            <Textarea className="min-h-9 py-0.5" id="description" value={description} onChange={e => setDescription(e.target.value)} />
+            <Textarea disabled={dict.meta.isFavorites} className="min-h-9 py-0.5" id="description" value={description} onChange={e => setDescription(e.target.value)} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label htmlFor="sourceLang">Source Language</Label>
-              <Input id="sourceLang" value={sourceLang} onChange={e => setSourceLang(e.target.value)} />
+          {!dict.meta.isFavorites &&
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="sourceLang">Source Language</Label>
+                <Input id="sourceLang" value={sourceLang} onChange={e => setSourceLang(e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="targetLang">Target Language</Label>
+                <Input id="targetLang" value={targetLang} onChange={e => setTargetLang(e.target.value)} />
+              </div>
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="targetLang">Target Language</Label>
-              <Input id="targetLang" value={targetLang} onChange={e => setTargetLang(e.target.value)} />
+          }
+          {!dict.meta.isFavorites &&
+            <div className="flex justify-end">
+              <Button size="sm" onClick={handleSave} disabled={!hasChanges}>
+                <Save className="size-4" />
+                Save Changes
+              </Button>
             </div>
-          </div>
-          <div className="flex justify-end">
-            <Button size="sm" onClick={handleSave} disabled={!hasChanges}>
-              <Save className="size-4" />
-              Save Changes
-            </Button>
-          </div>
+          }
         </div>
       </div>
 
@@ -100,14 +106,16 @@ export default () => {
 
       <PairList dictId={dictId!} pairs={dict.pairs} onChanged={reloadDict} />
 
-      <Separator />
+      {!dict.meta.isFavorites && <Separator />}
 
-      <div className="flex justify-center">
-        <Button className="" size="sm" variant="destructive" onClick={handleDelete}>
-          <Trash2 className="size-4" />
-          Delete Dictionary
-        </Button>
-      </div>
-    </div>
+      {!dict.meta.isFavorites &&
+        <div className="flex justify-center">
+          <Button className="" size="sm" variant="destructive" onClick={handleDelete}>
+            <Trash2 className="size-4" />
+            Delete Dictionary
+          </Button>
+        </div>
+      }
+    </div >
   );
 }

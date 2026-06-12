@@ -2,6 +2,7 @@ import type { DictionaryPair } from "@/app/types/Dictionary"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Pencil, X, Check, Trash2 } from "lucide-react"
+import Tooltip from '@/components/ui/Tooltip'
 
 interface PairProps {
   pair: DictionaryPair;
@@ -14,6 +15,13 @@ interface PairProps {
   onCancelEdit: () => void;
   onSave: () => void;
   onRemove: () => void;
+}
+
+function DisplayCell({ text, lang }: { text: string; lang?: string | null }) {
+  const cls = "flex-1 font-mono text-sm truncate border rounded-md px-3 py-1 h-8"
+  const hint = lang ? lang[0].toUpperCase() + lang.slice(1) : undefined
+  if (lang) return <Tooltip hint={hint} className={cls}>{text}</Tooltip>
+  return <span className={cls}>{text}</span>
 }
 
 export default ({
@@ -58,15 +66,11 @@ export default ({
         <Trash2 className="size-4" />
       </Button>
 
-      <span className="flex-1 font-mono text-sm truncate border rounded-md px-3 py-1 h-8">
-        {pair.source}
-      </span>
+      <DisplayCell text={pair.source} lang={pair.sourceLang} />
       <span className="text-muted-foreground shrink-0 flex items-center justify-center h-8 text-lg leading-none">
         →
       </span>
-      <span className="flex-1 font-mono text-sm truncate border rounded-md px-3 py-1 h-8">
-        {pair.target}
-      </span>
+      <DisplayCell text={pair.target} lang={pair.targetLang} />
 
       <Button size="icon-sm" variant="outline" onClick={onStartEdit} className="h-8 w-8">
         <Pencil className="size-4" />

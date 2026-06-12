@@ -1,20 +1,47 @@
+import { useEffect, useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Spinner } from '@/components/ui/spinner';
-import { Volume2 } from 'lucide-react';
+import { Volume2, Heart } from 'lucide-react';
 import useTranslation from '../hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import useTextToSpeech from '../hooks/useTextToSpeech';
+import { addFavoriteTranslation, isTranslationFavorite, removeFavoriteTranslationByContent } from '@/app/stores/favoritesStore';
 
 
 export default function () {
   const {
     translationResult: { response, isFetching, isError, error },
+    sourceText,
+    langPair
   } = useTranslation();
   const { speak } = useTextToSpeech();
+  const [isLiked, setIsLiked] = useState(false);
+
+  useEffect(() => {
+    if (!response.translation || !sourceText) {
+      setIsLiked(false);
+      return;
+    }
+    isTranslationFavorite(sourceText.trim(), response.translation.trim(), langPair)
+      .then(isFav => setIsLiked(isFav));
+  }, [response.translation, sourceText, langPair])
 
   const handleSpeak = () => {
     speak(response.translation);
   }
+
+  const handleLike = async () => {
+    if (!sourceText || !response.translation) return;
+    try {
+      if (isLiked)
+        await removeFavoriteTranslationByContent(sourceText.trim(), response.translation.trim(), langPair);
+      else
+        await addFavoriteTranslation(sourceText.trim(), response.translation.trim(), langPair);
+      setIsLiked(prev => !prev);
+    } catch (e) {
+      // handle error silently or show toast
+    }
+  };
 
   return (
     <div className="relative">
@@ -24,9 +51,10 @@ export default function () {
       )}>
         <Textarea className={cn(
           'flex-1 resize-none min-h-40',
-          isError && 'text-red-400'
+          isError && 'text-destructive'
         )} readOnly value={isError ? error?.message : response.translation} />
         <div className="absolute bottom-1.5 right-1.5 flex items-center gap-2 p-0.5">
+          <Heart onClick={handleLike} className={cn('cursor-pointer', isLiked && 'fill-destructive text-destructive')} />
           <Volume2 onClick={handleSpeak} className='cursor-pointer' />
         </div>
       </div>
