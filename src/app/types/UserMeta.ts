@@ -1,7 +1,8 @@
 import z from "zod";
 import { languagesByName } from "../consts/languages";
+import { LangCode } from "./Langs";
 
-const langCodeValues = Object.values(languagesByName) as [string, ...string[]];
+const langCodeValues = Object.values(languagesByName) as [LangCode, ...LangCode[]];
 
 export const LangCodeSchema = z.enum(langCodeValues);
 
