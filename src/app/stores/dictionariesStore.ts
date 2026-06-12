@@ -1,6 +1,5 @@
 import { LazyStore } from '@tauri-apps/plugin-store';
 import type { Dictionary, DictionaryMeta, DictionaryPair } from '../types/Dictionary';
-import { DEFAULT_DICTIONARIES } from '../consts/defaultStoresValues';
 
 const STORE_KEY = 'dictionaries';
 const store = new LazyStore('dictionaries.json');
@@ -12,7 +11,7 @@ function generateId(): string {
 export async function getAllDictionaries(): Promise<Dictionary[]> {
   const entries = await store.entries<Dictionary[]>();
   const map = Object.fromEntries(entries);
-  return map[STORE_KEY] ?? DEFAULT_DICTIONARIES;
+  return map[STORE_KEY] ?? [];
 }
 
 export async function getDictionary(id: string): Promise<Dictionary | undefined> {

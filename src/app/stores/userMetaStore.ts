@@ -1,10 +1,8 @@
 import { LazyStore } from '@tauri-apps/plugin-store';
-import type { LangPair } from '../types/Langs';
-import { DEFAULT_USER_META } from '../consts/defaultStoresValues';
+import { UserMetaSchema, type UserMeta } from '../types/UserMeta';
+export type { UserMeta };
 
-export interface UserMeta {
-  lastLangPair: LangPair;
-}
+const DEFAULT_USER_META = UserMetaSchema.parse({});
 
 const store = new LazyStore('user-meta.json');
 
@@ -18,8 +16,8 @@ export async function getMetaItem<K extends keyof UserMeta>(key: K): Promise<Use
   return value ?? DEFAULT_USER_META[key];
 }
 
-export async function getAllMetaItems() {
+export async function getAllMetaItems(): Promise<UserMeta> {
   const entries = await store.entries<any>();
   const allSettings = Object.fromEntries(entries);
-  return { ...DEFAULT_USER_META, ...allSettings } as UserMeta;
+  return UserMetaSchema.catch(UserMetaSchema.parse({})).parse(allSettings);
 }
