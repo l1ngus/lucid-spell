@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Spinner } from '@/components/ui/spinner';
-import { Volume2, Heart } from 'lucide-react';
+import { Volume2, Heart, BookPlus } from 'lucide-react';
 import useTranslation from '../hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import useTextToSpeech from '../hooks/useTextToSpeech';
 import { addFavoriteTranslation, isTranslationFavorite, removeFavoriteTranslationByContent } from '@/app/stores/favoritesStore';
+import ChooseDictDiolog from './ChooseDictDiolog';
 
 
 export default function () {
@@ -40,8 +41,13 @@ export default function () {
       setIsLiked(prev => !prev);
     } catch (e) {
       // handle error silently or show toast
+      console.error(e);
     }
   };
+
+  const handleAddToDict = () => {
+
+  }
 
   return (
     <div className="relative">
@@ -55,6 +61,9 @@ export default function () {
         )} readOnly value={isError ? error?.message : response.translation} />
         <div className="absolute bottom-1.5 right-1.5 flex items-center gap-2 p-0.5">
           <Heart onClick={handleLike} className={cn('cursor-pointer', isLiked && 'fill-destructive text-destructive')} />
+          <ChooseDictDiolog>
+            <BookPlus onClick={handleAddToDict} className='cursor-pointer' />
+          </ChooseDictDiolog>
           <Volume2 onClick={handleSpeak} className='cursor-pointer' />
         </div>
       </div>

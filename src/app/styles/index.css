@@ -151,6 +151,16 @@
   }
 }
 
+/* Фикс для моргания закрывающихся компонентов Radix UI в WebKit/Tauri */
+[data-state="closed"] {
+  animation-fill-mode: forwards !important;
+}
+
+/* Фикс для зависающего (ghost) скроллбара в WebKit/Tauri */
+[data-state="closed"] .overflow-y-auto {
+  overflow: hidden !important;
+}
+
 /*
 .gtk-theme {
   --background: var(--gtk-bg);
