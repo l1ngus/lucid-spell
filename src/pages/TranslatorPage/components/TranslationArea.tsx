@@ -6,7 +6,9 @@ import useTranslation from '../hooks/useTranslation';
 import { cn } from '@/lib/utils';
 import useTextToSpeech from '../hooks/useTextToSpeech';
 import { addFavoriteTranslation, isTranslationFavorite, removeFavoriteTranslationByContent } from '@/app/stores/favoritesStore';
-import ChooseDictDiolog from './ChooseDictDiolog';
+import ChooseDictDialog from './ChooseDictDialog';
+import { addPair } from '@/app/stores/dictionariesStore';
+import { DictionaryPair } from '@/app/types/Dictionary';
 
 
 export default function () {
@@ -45,8 +47,12 @@ export default function () {
     }
   };
 
-  const handleAddToDict = () => {
-
+  const handleDictSelect = (dictId: string) => {
+    const pair = {
+      source: sourceText,
+      target: response.translation,
+    }
+    addPair(dictId, pair);
   }
 
   return (
@@ -61,13 +67,13 @@ export default function () {
         )} readOnly value={isError ? error?.message : response.translation} />
         <div className="absolute bottom-1.5 right-1.5 flex items-center gap-2 p-0.5">
           <Heart onClick={handleLike} className={cn('cursor-pointer', isLiked && 'fill-destructive text-destructive')} />
-          <ChooseDictDiolog>
-            <BookPlus onClick={handleAddToDict} className='cursor-pointer' />
-          </ChooseDictDiolog>
+          <ChooseDictDialog onDictSelect={handleDictSelect} checkWhetherOpen={() => Boolean(sourceText) || Boolean(response.translation)}>
+            <BookPlus className='cursor-pointer' />
+          </ChooseDictDialog>
           <Volume2 onClick={handleSpeak} className='cursor-pointer' />
         </div>
       </div>
       {isFetching && <Spinner className='size-8 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2' />}
-    </div>
+    </div >
   )
 }

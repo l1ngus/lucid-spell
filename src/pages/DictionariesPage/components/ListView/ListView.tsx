@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { type Dictionary } from "@/app/types/Dictionary";
 import { getAllDictionaries } from "@/app/stores/dictionariesStore";
+import sortDictionaries from "@/app/helpers/sortDictionaries";
 import DictionaryCard from "./DictionaryCard";
 
 
@@ -10,15 +11,7 @@ export default () => {
 
   useEffect(() => {
     getAllDictionaries().then(dicts => {
-      const sorted = [...dicts].sort((a, b) =>
-        b.meta.updatedAt - a.meta.updatedAt
-      );
-      const favIndex = sorted.findIndex(d => d.meta.isFavorites);
-      if (favIndex !== -1) {
-        const [fav] = sorted.splice(favIndex, 1);
-        sorted.unshift(fav);
-      }
-      setDictionaries(sorted);
+      setDictionaries(sortDictionaries(dicts));
     });
   }, []);
 
