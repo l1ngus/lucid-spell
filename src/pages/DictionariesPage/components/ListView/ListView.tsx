@@ -18,7 +18,7 @@ export default () => {
   return (
     <div className="flex flex-col gap-2 max-w-xl w-[75%] mt-4 mx-auto">
       {dictionaries.map(dict => (
-        <DictionaryCard dictMeta={dict.meta} />
+        <DictionaryCard key={dict.meta.id} dictMeta={dict.meta} />
       ))}
     </div >
   )

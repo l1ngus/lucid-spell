@@ -40,13 +40,13 @@ export default ({ children, onDictSelect, checkWhetherOpen }: ChooseDictDialogPr
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="flex gap-0 flex-col max-h-100 min-w-60 max-w-80 sm:max-w-80 h-[calc(100dvh-2rem)] w-[calc(100vw-14rem)]">
+      <DialogContent aria-describedby={undefined} className="flex gap-0 flex-col max-h-100 min-w-60 max-w-80 sm:max-w-80 h-[calc(100dvh-2rem)] w-[calc(100vw-14rem)]">
         <DialogHeader className="h-fit">
           <DialogTitle>Choose dictonary</DialogTitle>
         </DialogHeader>
         <div className="flex gap-2 flex-col h-full -mx-4 no-scrollbar max-h-[70vh] overflow-y-auto px-5 py-2">
           {dicts.map(dict => (
-            <div onClick={() => handleSelect(dict.meta.id)} className="py-1 px-2 border rounded-md cursor-pointer hover:scale-105 z-40 transition-transform duration-150">
+            <div key={dict.meta.id} onClick={() => handleSelect(dict.meta.id)} className="py-1 px-2 border rounded-md cursor-pointer hover:scale-105 z-40 transition-transform duration-150">
               {dict.meta.name}
             </div>
           ))}
