@@ -40,7 +40,7 @@ export default ({ children, onDictSelect, checkWhetherOpen }: ChooseDictDialogPr
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent aria-describedby={undefined} className="flex gap-0 flex-col max-h-100 min-w-60 max-w-80 sm:max-w-80 h-[calc(100dvh-2rem)] w-[calc(100vw-14rem)]">
+      <DialogContent aria-description={undefined} className="flex gap-0 flex-col max-h-100 min-w-60 max-w-80 sm:max-w-80 h-[calc(100dvh-2rem)] w-[calc(100vw-14rem)]">
         <DialogHeader className="h-fit">
           <DialogTitle>Choose dictonary</DialogTitle>
         </DialogHeader>

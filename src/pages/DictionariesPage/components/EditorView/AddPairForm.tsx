@@ -2,6 +2,8 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus } from "lucide-react"
+import { FileDown } from "lucide-react"
+import ImportPairsDialog from "./ImportPairsDialog"
 
 interface AddPairFormProps {
   onAdd: (source: string, target: string) => void;
@@ -20,7 +22,11 @@ export default ({ onAdd }: AddPairFormProps) => {
 
   return (
     <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-      <Button size="icon-sm" className="invisible" aria-hidden />
+      <ImportPairsDialog>
+        <Button size="icon-sm" variant="outline" >
+          <FileDown />
+        </Button>
+      </ImportPairsDialog>
       <div className="flex gap-2 items-center flex-row">
         <Input
           placeholder="Source text"
@@ -45,6 +51,6 @@ export default ({ onAdd }: AddPairFormProps) => {
       >
         <Plus className="size-4" />
       </Button>
-    </div>
+    </div >
   )
 }

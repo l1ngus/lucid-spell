@@ -92,10 +92,10 @@ export default () => {
             </div>
           }
           {!dict.meta.isFavorites &&
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
               <Button size="sm" onClick={handleSave} disabled={!hasChanges}>
                 <Save className="size-4" />
-                Save Changes
+                Save
               </Button>
             </div>
           }
