@@ -4,12 +4,14 @@ import { Input } from "@/components/ui/input"
 import { Plus } from "lucide-react"
 import { FileDown } from "lucide-react"
 import ImportPairsDialog from "./ImportPairsDialog"
+import type { TermPair } from "@/app/types/Dictionary"
 
 interface AddPairFormProps {
   onAdd: (source: string, target: string) => void;
+  onImportPairs: (newPairs: TermPair[]) => void;
 }
 
-export default ({ onAdd }: AddPairFormProps) => {
+export default ({ onAdd, onImportPairs }: AddPairFormProps) => {
   const [source, setSource] = useState("");
   const [target, setTarget] = useState("");
 
@@ -22,7 +24,7 @@ export default ({ onAdd }: AddPairFormProps) => {
 
   return (
     <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-      <ImportPairsDialog>
+      <ImportPairsDialog onImportPairs={onImportPairs}>
         <Button size="icon-sm" variant="outline" >
           <FileDown />
         </Button>

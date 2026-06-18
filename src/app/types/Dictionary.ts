@@ -1,5 +1,10 @@
 import { LangName } from "./Langs"
 
+export interface TermPair {
+  source: string;
+  target: string;
+}
+
 export interface DictionaryPair {
   id: string
   source: string
