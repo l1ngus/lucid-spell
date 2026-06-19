@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Trash2, Save } from "lucide-react"
+import { Trash2, Save, Check } from "lucide-react"
 import PairList from "./PairList"
+import { INNER_SEPARATORS, OUTER_SEPARATORS, DEFAULT_INNER, DEFAULT_OUTER } from "../../consts/Separators"
+import { cn } from "@/lib/utils"
 
 export default () => {
   const { dictId, openListView } = useDictionariesView();
@@ -18,6 +20,7 @@ export default () => {
   const [description, setDescription] = useState("");
   const [sourceLang, setSourceLang] = useState("");
   const [targetLang, setTargetLang] = useState("");
+  const [isCoppied, setIsCoppied] = useState(false);
 
   const reloadDict = useCallback(async () => {
     if (!dictId) return;
@@ -67,6 +70,17 @@ export default () => {
       || targetLang !== (dict.meta.targetLang ?? "")
     ));
 
+  const handleExportPairs = async () => {
+    const inner_sep = INNER_SEPARATORS[DEFAULT_INNER].sep;
+    const outer_sep = OUTER_SEPARATORS[DEFAULT_OUTER].sep;
+    const textToCopy = dict.pairs
+      .map(pair => `${pair.source} ${inner_sep} ${pair.target}`)
+      .join(outer_sep);
+    await navigator.clipboard.writeText(textToCopy);
+    setIsCoppied(true);
+    setTimeout(() => setIsCoppied(false), 1000);
+  }
+
   return (
     <div className="p-4 space-y-6 max-w-2xl mx-[5%]">
       <div className="space-y-4">
@@ -91,14 +105,21 @@ export default () => {
               </div>
             </div>
           }
-          {!dict.meta.isFavorites &&
-            <div className="flex justify-end gap-2">
+          <div className="flex items-center justify-end gap-2">
+            <Check className={cn(
+              "transition-all duration-300",
+              isCoppied ? "opacity-100" : "opacity-0"
+            )} />
+            <Button onClick={handleExportPairs} size="sm" variant="outline">
+              Export pairs
+            </Button>
+            {!dict.meta.isFavorites &&
               <Button size="sm" onClick={handleSave} disabled={!hasChanges}>
                 <Save className="size-4" />
                 Save
               </Button>
-            </div>
-          }
+            }
+          </div>
         </div>
       </div>
 
@@ -110,7 +131,7 @@ export default () => {
 
       {!dict.meta.isFavorites &&
         <div className="flex justify-center">
-          <Button className="" size="sm" variant="destructive" onClick={handleDelete}>
+          <Button size="sm" variant="destructive" onClick={handleDelete}>
             <Trash2 className="size-4" />
             Delete Dictionary
           </Button>
