@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import type { Dictionary, DictionaryPair } from "@/app/types/Dictionary";
+import type { DictionaryPair } from "@/app/types/Dictionary";
 import { useDictionariesView } from "../../hooks/useDictionariesView";
 import Flashcard from "./Flashcard";
 import FlashcardNavBar from "./FlashcardNavBar";
 import { getDictionary } from "@/app/stores/dictionariesStore";
 import shuffleArray from "@/app/helpers/shuffleArray";
 
-const FlascardsView = () => {
+const FlashcardsView = () => {
   const { dictId } = useDictionariesView();
   const [pairs, setPairs] = useState<DictionaryPair[] | null>(null)
   const [currentPairInd, setCurrentPairInd] = useState(0);
@@ -21,7 +21,7 @@ const FlascardsView = () => {
   }, [dictId]);
 
   if (!pairs) {
-    return null;
+    return <div />;
   }
 
   const handlePrev = () => {
@@ -40,4 +40,4 @@ const FlascardsView = () => {
   )
 }
 
-export default FlascardsView;
+export default FlashcardsView;
