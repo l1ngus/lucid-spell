@@ -1,6 +1,6 @@
 import { useDictionariesView } from "../hooks/useDictionariesView"
 import EditorView from "./EditorView/EditorView";
-import FlascardsView from "./FlashcardsView/FlashcardsView";
+import FlashcardsView from "./FlashcardsView/FlashcardsView";
 import ListView from "./ListView/ListView";
 
 
@@ -13,7 +13,7 @@ export default () => {
       ViewComponent = EditorView;
       break;
     case 'flashcards':
-      ViewComponent = FlascardsView;
+      ViewComponent = FlashcardsView;
       break;
   }
 
