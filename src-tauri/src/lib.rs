@@ -59,7 +59,7 @@ pub fn run() {
                     let mut audio_stream = state._audio_stream.lock().await;
                     let mut audio_mixer = state.audio_mixer.lock().await;
 
-                    *audio_stream = Some(Box::new(stream));
+                    *audio_stream = Some(state::OutputStreamHandle(Some(stream)));
                     *audio_mixer = Some(Arc::new(mixer));
                 });
             }
