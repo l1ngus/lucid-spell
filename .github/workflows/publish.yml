@@ -1,0 +1,73 @@
+name: 'publish'
+
+on:
+  push:
+    branches:
+      - main # Сборка будет запускаться при пуше в ветку main (можно изменить на "release" или настроить запуск по тегам)
+
+jobs:
+  publish-tauri:
+    permissions:
+      contents: write # Требуется для возможности создания релизов и загрузки артефактов
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest' # Сборка для macOS на процессорах Apple Silicon (M1/M2/M3)
+            args: '--target aarch64-apple-darwin'
+          - platform: 'macos-latest' # Сборка для macOS на процессорах Intel
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-22.04' # Сборка для Linux (создаст .deb и .AppImage)
+            args: ''
+          - platform: 'windows-latest' # Сборка для Windows (.msi и .exe установщики)
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          # Установка кросс-компиляции таргетов для macOS выполняется только на macOS-раннерах
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install system dependencies (Linux only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+          # Обратите внимание: если вы используете Tauri v1, замените libwebkit2gtk-4.1-dev на libwebkit2gtk-4.0-dev
+
+      - name: Install frontend dependencies
+        run: |
+          npm install
+          # Если вы используете pnpm, yarn или bun, замените команду выше на соответствующую.
+          # Например, для pnpm предварительно добавьте шаг установки pnpm:
+          # - uses: pnpm/action-setup@v3
+          #   with:
+          #     version: 9
+          # - run: pnpm install
+
+      - name: Build and release Tauri app
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: app-v__VERSION__ # __VERSION__ будет автоматически заменено на версию из tauri.conf.json / Cargo.toml
+          releaseName: 'App v__VERSION__'
+          releaseBody: 'See the assets to download this version and install.'
+          releaseDraft: true # Создать черновик релиза (рекомендуется для проверки перед публикацией)
+          prerelease: false
+          args: ${{ matrix.args }}
