@@ -51,18 +51,25 @@ pub fn run() {
                 }
             });
 
-            if let Ok(stream) = rodio::OutputStreamBuilder::open_default_stream() {
-                let mixer = stream.mixer().clone();
-
-                let rt = tokio::runtime::Runtime::new().unwrap();
-                rt.block_on(async {
-                    let mut audio_stream = state._audio_stream.lock().await;
-                    let mut audio_mixer = state.audio_mixer.lock().await;
-
-                    *audio_stream = Some(state::OutputStreamHandle(Some(stream)));
-                    *audio_mixer = Some(Arc::new(mixer));
-                });
-            }
+            // Init audio in background — open_default_stream can hang on VMs without audio
+            let state_arc = Arc::clone(&state);
+            tauri::async_runtime::spawn(async move {
+                match tokio::task::spawn_blocking(|| {
+                    rodio::OutputStreamBuilder::open_default_stream()
+                })
+                .await
+                {
+                    Ok(Ok(stream)) => {
+                        let mixer = stream.mixer().clone();
+                        let mut audio_stream = state_arc._audio_stream.lock().await;
+                        let mut audio_mixer = state_arc.audio_mixer.lock().await;
+                        *audio_stream = Some(state::OutputStreamHandle(Some(stream)));
+                        *audio_mixer = Some(Arc::new(mixer));
+                    }
+                    Ok(Err(e)) => eprintln!("Audio init failed: {e}"),
+                    Err(e) => eprintln!("Audio init task cancelled: {e}"),
+                }
+            });
 
             Ok(())
         })
