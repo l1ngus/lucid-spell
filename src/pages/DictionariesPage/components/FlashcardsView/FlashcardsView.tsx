@@ -42,7 +42,7 @@ const FlashcardsView = () => {
 
   const handleNext = () => {
     setCurrentPairInd(prev => {
-      if (pairs && prev + 1 <= pairs.length) {
+      if (pairs && prev + 1 < pairs.length) {
         setIsFlashcardFlipped(false);
         return prev + 1;
       }
