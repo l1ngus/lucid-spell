@@ -89,7 +89,7 @@ export default function () {
         <div className="flex items-center gap-1.5 p-0.5 ml-auto">
           <Volume2 onClick={handleSpeak} className='cursor-pointer' />
           <MicIcon className='cursor-pointer' />
-          {!settings.isAutoLanguageSwitchEnabled &&
+          {!settings.isAutoTranslateEnabled &&
             <ChevronsRightIcon onClick={translateCurrent} className='cursor-pointer' />
           }
         </div>

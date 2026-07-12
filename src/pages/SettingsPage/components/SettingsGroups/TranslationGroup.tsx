@@ -18,7 +18,7 @@ export default ({ settings, changeSettingsProperty }: SettingsGroupProps) => {
         onChange={(value) => changeSettingsProperty('isAutoLanguageSwitchEnabled', value)}
         hint="Language swapping after any input" />
       <SwitchProperty id='auto-translate-switch' label='Auto translate'
-        defaultValue={settings.isAutoLanguageSwitchEnabled}
+        defaultValue={settings.isAutoTranslateEnabled}
         onChange={(value) => changeSettingsProperty('isAutoTranslateEnabled', value)}
         hint="Translation after a small delay without pressing a button." />
       <SliderProperty label="Auto translate delay (ms)" max={2000} step={10}
