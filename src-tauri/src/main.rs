@@ -9,11 +9,11 @@ fn main() {
             info.location(),
             std::backtrace::Backtrace::capture(),
         );
-        let path = std::env::temp_dir().join("jem-trans-panic.log");
+        let path = std::env::temp_dir().join("lucid-spell-panic.log");
         let _ = std::fs::write(&path, &msg);
         // Also print to stderr — visible in terminal or debug builds
         eprintln!("{}", msg);
     }));
 
-    jem_trans_lib::run()
+    lucid_spell_lib::run()
 }
