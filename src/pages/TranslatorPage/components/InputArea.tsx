@@ -1,7 +1,7 @@
 import { useRef, useEffect, type ChangeEvent } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import Tooltip from '@/components/ui/Tooltip';
-import { ChevronsRightIcon, MicIcon, Volume2, Lightbulb } from 'lucide-react';
+import { ChevronsRightIcon, Volume2, Lightbulb } from 'lucide-react';
 import isShortcutPressed from '@/app/helpers/isShortcutPressed';
 import useTranslation from '../hooks/useTranslation';
 import useSettings from '@/app/hooks/useSettings';
@@ -88,7 +88,7 @@ export default function () {
         }
         <div className="flex items-center gap-1.5 p-0.5 ml-auto">
           <Volume2 onClick={handleSpeak} className='cursor-pointer' />
-          <MicIcon className='cursor-pointer' />
+          {/* <MicIcon className='cursor-pointer' /> */}
           {!settings.isAutoTranslateEnabled &&
             <ChevronsRightIcon onClick={translateCurrent} className='cursor-pointer' />
           }
