@@ -1,8 +1,22 @@
-# Lucid Spell
+![Lucid Spell header](assets/lucid-spell-header.png)
+
+## Lucid Spell
+
+A desktop translator powered by LLMs, it uses your API key to translate text. Built with Tauri 2 + React + TypeScript + Tailwind CSS.
+
+## Screenshots
+
+<p align="center">
+  <img src="assets/screenshot-translator-dark.png" width="48%" />
+  <img src="assets/screenshot-translator-white.png" width="48%" />
+</p>
+<p align="center">
+  <img src="assets/screenshot-dictionaries-dark.png" width="48%" />
+</p>
+
+## Download
 
 [Download latest release](https://github.com/l1ngus/lucid-spell/releases)
-
-A desktop translator powered by LLMs. Built with Tauri 2 + React + TypeScript + Tailwind CSS.
 
 ## Features
 
@@ -12,11 +26,3 @@ A desktop translator powered by LLMs. Built with Tauri 2 + React + TypeScript + 
 - Custom dictionaries & flashcards
 - Proxy support (SOCKS5/HTTP/HTTPS)
 - Keyboard shortcuts
-
-## Stack
-
-| Layer | Tech |
-|-------|------|
-| Frontend | React 19, TypeScript, Tailwind CSS 4, TanStack Query, Radix UI |
-| Backend | Rust, Tauri 2, async-openai, rodio, msedge-tts |
-| State | Zustand stores + React contexts |
