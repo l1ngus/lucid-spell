@@ -2,7 +2,8 @@
 name = "lucid-spell"
 version = "0.1.0"
 description = "Lucid Spell - LLM-powered translator"
-authors = ["you"]
+authors = ["l1ngus"]
+license = "MIT"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -31,7 +32,11 @@ async-openai = { version = "0.33", features = ["full"] }
 specta = { version = "2.0.0-rc.21", features = ["derive"] }
 tauri-specta = { version = "2.0.0-rc.21", features = ["derive", "typescript"] }
 specta-typescript = "0.0.9"
-reqwest = { version = "0.12", features = ["json", "socks", "rustls-tls"], default-features = false }
+reqwest = { version = "0.12", features = [
+  "json",
+  "socks",
+  "rustls-tls",
+], default-features = false }
 openssl-sys = { version = "0.9", features = ["vendored"] }
 rodio = { version = "0.21", features = ["symphonia-all"] }
 msedge-tts = "0.3"
