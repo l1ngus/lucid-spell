@@ -3,6 +3,7 @@
   align-items: center;
   height: max-content;
   grid-template-columns: 1fr;
+  user-select: none;
 
   &>* {
     grid-column: 1 / -1;
