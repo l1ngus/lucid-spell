@@ -14,10 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-use std::fs;
+use crate::models::{TranslationRequest, TranslationResponse};
+use crate::state::AppState;
+use std::sync::Arc;
+use tauri::State;
 
 #[tauri::command]
-pub fn read_text_file(path: String) -> Result<String, String> {
-    fs::read_to_string(&path).map_err(|e| format!("Failed to read file: {e}"))
+#[specta::specta]
+pub async fn translate(
+    request: TranslationRequest,
+    state: State<'_, Arc<AppState>>,
+) -> Result<TranslationResponse, String> {
+    crate::translation::service::translate(request, state).await
 }

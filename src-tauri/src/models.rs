@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
@@ -46,4 +48,28 @@ impl From<keyring::Error> for KeyStoreError {
             e => KeyStoreError::Unknown(e.to_string()),
         }
     }
+}
+
+#[derive(Debug, Clone, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct TranslationRequest {
+    pub engine: TranslationEngine,
+    pub text: String,
+    pub source_lang: String,
+    pub target_lang: String,
+}
+
+#[derive(Debug, Clone, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct TranslationResponse {
+    pub translation: String,
+    pub detected_source_lang: Option<String>,
+    pub source_correction: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Type)]
+#[serde(rename_all = "lowercase")]
+pub enum TranslationEngine {
+    Llm,
+    Google,
 }

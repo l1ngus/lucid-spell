@@ -14,11 +14,5 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-// src/commands/mod.rs
-pub mod http_client;
-pub mod keys;
-pub mod lang;
+pub mod google;
 pub mod llm;
-pub mod translation;
-pub mod tts;

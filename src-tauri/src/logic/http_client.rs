@@ -14,11 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+use std::time::Duration;
 
-// src/commands/mod.rs
-pub mod http_client;
-pub mod keys;
-pub mod lang;
-pub mod llm;
-pub mod translation;
-pub mod tts;
+pub fn build_shared_client(proxy: Option<&str>) -> Result<reqwest::Client, reqwest::Error> {
+    let mut builder = reqwest::Client::builder()
+        .connect_timeout(Duration::from_secs(10))
+        .timeout(Duration::from_secs(20));
+
+    if let Some(proxy) = proxy {
+        if !proxy.trim().is_empty() {
+            builder = builder.proxy(reqwest::Proxy::all(proxy)?);
+        }
+    }
+
+    builder.build()
+}

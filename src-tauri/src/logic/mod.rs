@@ -15,6 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+pub mod http_client;
 pub mod keychain;
 mod parse_chat_messages;
 pub mod play_audio;

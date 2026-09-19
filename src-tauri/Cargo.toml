@@ -47,3 +47,5 @@ keyring = { version = "4.2.0", features = [
   "windows-native-keyring-store",
   "zbus-secret-service-keyring-store",
 ] }
+thiserror = "2"
+minijinja = "2.0"

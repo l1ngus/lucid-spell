@@ -16,16 +16,18 @@
  */
 
 mod commands;
+mod llm;
 mod logic;
 mod models;
 mod state;
+mod translation;
 
 use specta_typescript::Typescript;
 use state::AppState;
 use std::sync::Arc;
 use tauri::Manager;
 use tauri_specta::{collect_commands, Builder};
-use tokio::sync::Mutex;
+use tokio::sync::{Mutex, RwLock};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -36,12 +38,14 @@ pub fn run() {
     let builder = Builder::<tauri::Wry>::new()
         .commands(collect_commands![
             commands::llm::set_llm_config,
-            commands::llm::ask_llm,
+            // commands::llm::ask_llm,
             commands::tts::speak,
             commands::tts::get_voices,
             commands::keys::save_profile_api_key,
             commands::keys::check_profile_api_key,
-            commands::keys::remove_profile_api_key
+            commands::keys::remove_profile_api_key,
+            commands::http_client::set_proxy,
+            commands::translation::translate
         ])
         .typ::<models::ChatMessage>();
     #[cfg(debug_assertions)] // <- Only export on non-release builds
@@ -53,7 +57,9 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .manage(Arc::new(AppState {
-            openai_client: Mutex::new(None),
+            http: RwLock::new(reqwest::Client::new()),
+            proxy_url: RwLock::new(None),
+            llm: RwLock::new(state::LlmSettings::default()),
             audio_mixer: Mutex::new(None),
             _audio_stream: Mutex::new(None),
             voices: tokio::sync::RwLock::new(Vec::new()),
@@ -93,12 +99,14 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::lang::detect_language,
             commands::llm::set_llm_config,
-            commands::llm::ask_llm,
+            // commands::llm::ask_llm,
             commands::tts::speak,
             commands::tts::get_voices,
             commands::keys::save_profile_api_key,
             commands::keys::check_profile_api_key,
-            commands::keys::remove_profile_api_key
+            commands::keys::remove_profile_api_key,
+            commands::http_client::set_proxy,
+            commands::translation::translate
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

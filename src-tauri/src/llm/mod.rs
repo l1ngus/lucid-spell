@@ -15,10 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// src/commands/mod.rs
-pub mod http_client;
-pub mod keys;
-pub mod lang;
-pub mod llm;
-pub mod translation;
-pub mod tts;
+pub mod client;
+pub mod parser;
+pub mod prompts;
