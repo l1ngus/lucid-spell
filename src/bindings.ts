@@ -5,17 +5,9 @@
 
 
 export const commands = {
-async setLlmConfig(profileId: string, apiUrl: string, proxyUrl: string | null) : Promise<Result<null, string>> {
+async setLlmConfig(profileId: string, apiUrl: string, model: string, temperature: number) : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("set_llm_config", { profileId, apiUrl, proxyUrl }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-async askLlm(messages: ChatMessage[], model: string, temperature: number) : Promise<Result<string, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("ask_llm", { messages, model, temperature }) };
+    return { status: "ok", data: await TAURI_INVOKE("set_llm_config", { profileId, apiUrl, model, temperature }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -55,6 +47,22 @@ async removeProfileApiKey(profileId: string) : Promise<Result<null, string>> {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+async setProxy(proxyUrl: string | null) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_proxy", { proxyUrl }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async translate(request: TranslationRequest) : Promise<Result<TranslationResponse, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("translate", { request }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -71,6 +79,9 @@ async removeProfileApiKey(profileId: string) : Promise<Result<null, string>> {
 export type ChatMessage = { role: string; content: string }
 export type KeyStatus = { profile_id: string; is_saved: boolean }
 export type KeyStoreError = { type: "MissingKeyringDaemon"; message: string } | { type: "Unknown"; message: string }
+export type TranslationEngine = "llm" | "google"
+export type TranslationRequest = { engine: TranslationEngine; text: string; sourceLang: string; targetLang: string }
+export type TranslationResponse = { translation: string; detectedSourceLang: string | null; sourceCorrection: string | null }
 
 /** tauri-specta globals **/
 

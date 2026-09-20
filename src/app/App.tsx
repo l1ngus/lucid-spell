@@ -22,11 +22,13 @@ import useShowWindow from './hooks/useShowWindow';
 import AppBar from '@/components/AppBar/AppBar';
 import Outlet from '@/components/Outlet/Outlet';
 import { PageProvider } from './contexts/PageContext';
+import useProxySetup from './hooks/useProxySetup';
 
 function App() {
   useNeuralSetup();
   useLoadTheme();
   useShowWindow();
+  useProxySetup();
 
   return (
     <PageProvider>

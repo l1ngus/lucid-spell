@@ -16,11 +16,14 @@
  */
 
 import z from "zod";
+import { type TranslationEngine } from "@/bindings";
 import { ModelProfileSchema } from "./ModelProfile";
 
 export const AppSettingsSchema = z.object({
   theme: z.enum(['dark', 'light']).default('dark'), // 'gtk-theme'
   voice: z.string().default('en-US-AvaMultilingualNeural'),
+
+  translationEngine: z.custom<TranslationEngine>().default('google'),
 
   activeLlmProfileId: z.string().default(''),
   llmProfiles: z.array(ModelProfileSchema).default([]),

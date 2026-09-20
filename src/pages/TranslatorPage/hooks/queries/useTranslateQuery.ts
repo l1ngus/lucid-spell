@@ -16,21 +16,22 @@
  */
 
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
-import useTranslator, { type TranslateParams } from '../useTranslator';
-import { type TranslateResponse } from '../../types/TranslateResponse';
+import useTranslator from '../useTranslator';
+import { TranslationRequest, type TranslationResponse } from '@/bindings';
+// import { type TranslateResponse } from '../../types/TranslateResponse';
 import useSettings from '@/app/hooks/useSettings';
 
 
-export type UseTranslateQueryOptions = TranslateParams;
+export type UseTranslateQueryOptions = TranslationRequest;
 export type UseTranslateQueryResult = {
-  response: TranslateResponse;
-} & Pick<UseQueryResult<TranslateResponse>, 'isFetching' | 'isError' | 'error'>
+  response: TranslationResponse
+} & Pick<UseQueryResult<TranslationResponse>, 'isFetching' | 'isError' | 'error'>
 
-export default ({ term, sourceLang, targetLang }: UseTranslateQueryOptions): UseTranslateQueryResult => {
+export default ({ engine, text, sourceLang, targetLang }: UseTranslateQueryOptions): UseTranslateQueryResult => {
   const { settings } = useSettings();
   const { translateViaLlm } = useTranslator();
 
-  const isEnabled = !!term && term.trim().length > 0;
+  const isEnabled = !!text && text.trim().length > 0;
 
   const currentProfile = settings.llmProfiles.find(prof => prof.id === settings.activeLlmProfileId);
 
@@ -38,7 +39,7 @@ export default ({ term, sourceLang, targetLang }: UseTranslateQueryOptions): Use
     queryKey: [
       'translate',
       {
-        term,
+        text,
         sourceLang,
         targetLang,
         profile: currentProfile
@@ -52,7 +53,8 @@ export default ({ term, sourceLang, targetLang }: UseTranslateQueryOptions): Use
       },
     ],
     queryFn: () => translateViaLlm({
-      term,
+      engine,
+      text,
       sourceLang,
       targetLang
     }),
@@ -63,7 +65,7 @@ export default ({ term, sourceLang, targetLang }: UseTranslateQueryOptions): Use
     gcTime: 1000 * 60 * 60 * 24
   })
 
-  const response = data ?? { translation: '', sourceCorrection: '' };
+  const response = data ?? { translation: '', detectedSourceLang: null, sourceCorrection: null };
 
   return {
     response,

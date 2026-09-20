@@ -17,12 +17,12 @@
 
 import { z } from 'zod';
 
-// simple translate response one source, one target
-export const TranslateResponseScheme = z.object({
-  translation: z.string(),
-  sourceCorrection: z.string().default('')
-});
-export type TranslateResponse = z.infer<typeof TranslateResponseScheme>;
+// // simple translate response one source, one target
+// export const TranslateResponseScheme = z.object({
+//   translation: z.string(),
+//   sourceCorrection: z.string().default('')
+// });
+// export type TranslateResponse = z.infer<typeof TranslateResponseScheme>;
 
 // response with only other translations
 export const TranslateOthersResponseScheme = z.object({

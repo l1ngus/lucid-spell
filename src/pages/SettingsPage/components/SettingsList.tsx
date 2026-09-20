@@ -33,7 +33,7 @@ export default function () {
 
       <GeneralGroup settings={settings} changeSettingsProperty={changeSettingsProperty} />
       <Separator className="my-2" />
-      <ModelProfileGroup settings={settings} changeSettingsProperty={changeSettingsProperty} />
+      {settings.translationEngine === 'llm' && <ModelProfileGroup settings={settings} changeSettingsProperty={changeSettingsProperty} />}
       <Separator className="my-2" />
       <TranslationGroup settings={settings} changeSettingsProperty={changeSettingsProperty} />
       <Separator className="my-2" />
