@@ -32,7 +32,7 @@ async-openai = { version = "0.41", features = ["full"] }
 specta = { version = "2.0.0-rc.21", features = ["derive"] }
 tauri-specta = { version = "2.0.0-rc.21", features = ["derive", "typescript"] }
 specta-typescript = "0.0.9"
-reqwest = { version = "0.13", features = [
+reqwest = { version = "0.13.5", features = [
   "rustls",
   "json",
   "socks",
