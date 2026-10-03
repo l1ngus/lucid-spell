@@ -41,6 +41,7 @@ export default ({ engine, text, sourceLang, targetLang }: UseTranslateQueryOptio
         text,
         sourceLang,
         targetLang,
+        engine,
         profile: currentProfile
           ? {
             id: currentProfile.id,
