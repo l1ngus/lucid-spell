@@ -15,4 +15,5 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 pub mod engines;
+pub mod lang_codes;
 pub mod service;

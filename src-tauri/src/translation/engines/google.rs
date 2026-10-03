@@ -16,6 +16,7 @@
  */
 
 use crate::models::TranslationResponse;
+use crate::translation::lang_codes::{from_google_code, to_google_code};
 use reqwest::StatusCode;
 use serde_json::Value;
 use thiserror::Error;
@@ -64,14 +65,22 @@ pub async fn translate_google(
     let source = source_lang.trim().to_lowercase();
     let target = target_lang.trim().to_lowercase();
 
-    if target.is_empty() {
-        return Err(GoogleTranslateError::InvalidLanguage);
-    }
+    // The app speaks ISO 639-3; Google speaks ISO 639-1 plus quirks.
+    // 'auto' source detection passes through; anything else must map,
+    // otherwise we fail fast instead of sending garbage to Google.
+    let source_code = if source == "auto" {
+        "auto".to_string()
+    } else {
+        to_google_code(&source)
+            .ok_or(GoogleTranslateError::InvalidLanguage)?
+            .to_string()
+    };
+    let target_code = to_google_code(&target).ok_or(GoogleTranslateError::InvalidLanguage)?;
 
     let url = format!(
         "https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&dt=t&sl={}&tl={}&q={}",
-        urlencode(&source),
-        urlencode(&target),
+        urlencode(&source_code),
+        urlencode(target_code),
         urlencode(text)
     );
 
@@ -102,11 +111,15 @@ pub async fn translate_google(
         }
     }
 
+    // Google reports detection in its own codes; map back to ISO 639-3
+    // so the response never leaks non-639-3 codes into the app.
+    // Unknown codes are dropped (None) rather than passed through raw.
     let detected_source_lang = json
         .get("src")
         .and_then(Value::as_str)
-        .map(|s: &str| s.to_string())
-        .filter(|s: &String| !s.is_empty() && s != "auto");
+        .filter(|s| !s.is_empty() && *s != "auto")
+        .and_then(from_google_code)
+        .map(str::to_string);
 
     let source_correction = json
         .get("spell")
