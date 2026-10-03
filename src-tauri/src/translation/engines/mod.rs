@@ -14,30 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-import './styles/index.css';
-import useNeuralSetup from './hooks/useNeuralSetup';
-import useLoadTheme from './hooks/useLoadTheme';
-import useShowWindow from './hooks/useShowWindow';
-import AppBar from '@/components/AppBar/AppBar';
-import Outlet from '@/components/Outlet/Outlet';
-import { PageProvider } from './contexts/PageContext';
-import useProxySetup from './hooks/useProxySetup';
-
-function App() {
-  useNeuralSetup();
-  useLoadTheme();
-  useShowWindow();
-  useProxySetup();
-
-  return (
-    <PageProvider>
-      <AppBar />
-      <main className='flex flex-col flex-1' >
-        <Outlet />
-      </main>
-    </PageProvider>
-  );
-}
-
-export default App;
+pub mod alternatives;
+pub mod google;
+pub mod llm;

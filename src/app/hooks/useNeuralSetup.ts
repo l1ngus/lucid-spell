@@ -29,21 +29,15 @@ export default () => {
       console.error("Couldn't find selected llm profile.");
       return;
     }
-    let proxyUrl = null
-    if (settings.isProxyEnabled && profile.isProxyEnabled) {
-      proxyUrl = `${settings.proxyProtocol}://${settings.proxyUser}:${settings.proxyPass}@${settings.proxyHost}:${settings.proxyPort}`
-    }
     const apiUrl = profile.aiService === 'openaimanual'
       ? profile.serviceUrl
       : AI_SERVICES[profile.aiService].url;
-    commands.setLlmConfig(profile.id, apiUrl, proxyUrl)
+    commands.setLlmConfig(profile.id, apiUrl, profile.model, profile.temperature)
       .then(result => {
         if (result.status === 'error')
           console.error(result.error);
       });
   }, [
-    settings.activeLlmProfileId, settings.llmProfiles, settings.isProxyEnabled,
-    settings.proxyHost, settings.proxyPort, settings.proxyProtocol,
-    settings.proxyUser, settings.proxyPass, apiKeysVersion
+    settings.activeLlmProfileId, settings.llmProfiles, apiKeysVersion
   ])
 }

@@ -16,32 +16,36 @@
  */
 
 mod commands;
+mod llm;
 mod logic;
 mod models;
 mod state;
+mod translation;
 
 use specta_typescript::Typescript;
 use state::AppState;
 use std::sync::Arc;
 use tauri::Manager;
 use tauri_specta::{collect_commands, Builder};
-use tokio::sync::Mutex;
+use tokio::sync::{Mutex, RwLock};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // Both `ring` (reqwest 0.12) and `aws-lc-rs` (msedge-tts -> reqwest 0.13)
-    // are compiled into rustls, so pick a provider explicitly.
-    let _ = rustls::crypto::ring::default_provider().install_default();
+    rustls::crypto::aws_lc_rs::default_provider()
+        .install_default()
+        .expect("failed to install aws-lc-rs provider");
     std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
     let builder = Builder::<tauri::Wry>::new()
         .commands(collect_commands![
             commands::llm::set_llm_config,
-            commands::llm::ask_llm,
             commands::tts::speak,
             commands::tts::get_voices,
             commands::keys::save_profile_api_key,
             commands::keys::check_profile_api_key,
-            commands::keys::remove_profile_api_key
+            commands::keys::remove_profile_api_key,
+            commands::http_client::set_proxy,
+            commands::translation::translate,
+            commands::translation::get_other_translations
         ])
         .typ::<models::ChatMessage>();
     #[cfg(debug_assertions)] // <- Only export on non-release builds
@@ -53,7 +57,9 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .manage(Arc::new(AppState {
-            openai_client: Mutex::new(None),
+            http: RwLock::new(reqwest::Client::new()),
+            proxy_url: RwLock::new(None),
+            llm: RwLock::new(state::LlmSettings::default()),
             audio_mixer: Mutex::new(None),
             _audio_stream: Mutex::new(None),
             voices: tokio::sync::RwLock::new(Vec::new()),
@@ -93,12 +99,14 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::lang::detect_language,
             commands::llm::set_llm_config,
-            commands::llm::ask_llm,
             commands::tts::speak,
             commands::tts::get_voices,
             commands::keys::save_profile_api_key,
             commands::keys::check_profile_api_key,
-            commands::keys::remove_profile_api_key
+            commands::keys::remove_profile_api_key,
+            commands::http_client::set_proxy,
+            commands::translation::translate,
+            commands::translation::get_other_translations
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

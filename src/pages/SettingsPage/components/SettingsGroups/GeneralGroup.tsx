@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { commands } from '@/bindings';
+import { commands, TranslationEngine } from '@/bindings';
 import { AppSettingsSchema } from '@/app/types/AppSettings';
 import GroupHeading from './GroupHeading';
 import GroupWrapper from './GroupWrapper';
@@ -24,6 +24,17 @@ import GroupWrapper from './GroupWrapper';
 import SelectProperty from "../Properties/SelectProperty"
 import type { SettingsGroupProps } from "../../types/SettingsGroupProps";
 import { useEffect, useState } from 'react';
+
+const TRANSLATION_ENGINE_ITEMS: { label: string; value: TranslationEngine }[] = [
+  {
+    label: "LLM (AI)",
+    value: 'llm'
+  },
+  {
+    label: "Google Translate",
+    value: 'google'
+  }
+]
 
 export default function ({ settings, changeSettingsProperty }: SettingsGroupProps) {
   const [voices, setVoices] = useState<string[]>([]);
@@ -59,6 +70,12 @@ export default function ({ settings, changeSettingsProperty }: SettingsGroupProp
         }))}
         onChange={value => changeSettingsProperty('voice', value)}
         placeholder='Select voice' />
+      <SelectProperty label='Translation Engine'
+        defaultValue={settings.translationEngine}
+        selectItems={TRANSLATION_ENGINE_ITEMS}
+        onChange={value => changeSettingsProperty('translationEngine', value)}
+        placeholder="Select translation engine"
+      />
     </GroupWrapper>
   )
 }

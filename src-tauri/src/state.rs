@@ -15,8 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use async_openai::{config::OpenAIConfig, Client};
 use msedge_tts::voice::Voice;
+use reqwest::Client as HttpClient;
 use rodio::mixer::Mixer;
 use rodio::OutputStream;
 use std::sync::Arc;
@@ -29,8 +29,19 @@ pub(crate) struct OutputStreamHandle(pub(crate) Option<OutputStream>);
 
 unsafe impl Send for OutputStreamHandle {}
 
+#[derive(Default, Clone)]
+pub struct LlmSettings {
+    pub profile_id: String,
+    pub api_url: String,
+    pub model: String,
+    pub temperature: f32,
+}
+
 pub struct AppState {
-    pub openai_client: Mutex<Option<Client<OpenAIConfig>>>,
+    pub http: RwLock<HttpClient>, //both for async-openai and reqwest requests
+    pub proxy_url: RwLock<Option<String>>,
+    pub llm: RwLock<LlmSettings>,
+
     pub audio_mixer: Mutex<Option<Arc<Mixer>>>,
     pub _audio_stream: Mutex<Option<OutputStreamHandle>>,
     pub voices: RwLock<Vec<Voice>>,

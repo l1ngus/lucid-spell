@@ -14,27 +14,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-use crate::logic::keychain;
+use crate::logic::http_client::build_shared_client;
 use crate::state::AppState;
 use std::sync::Arc;
 use tauri::State;
 
 #[tauri::command]
 #[specta::specta]
-pub async fn set_llm_config(
-    profile_id: String,
-    api_url: String,
-    model: String,
-    temperature: f32,
+pub async fn set_proxy(
+    proxy_url: Option<String>,
     state: State<'_, Arc<AppState>>,
 ) -> Result<(), String> {
-    keychain::get_key(&profile_id).map_err(|e| e.to_string())?;
-    let mut llm_config = state.llm.write().await;
-    llm_config.profile_id = profile_id;
-    llm_config.api_url = api_url;
-    llm_config.model = model;
-    llm_config.temperature = temperature;
+    // Проверяем текущий прокси под read-lock'ом
+    {
+        let current = state.proxy_url.read().await;
+        if *current == proxy_url {
+            return Ok(());
+        }
+    }
+
+    // Строим НОВЫЙ общий клиент с обновленным прокси
+    let new_client = build_shared_client(proxy_url.as_deref())
+        .map_err(|e| format!("Failed to build HTTP client: {}", e))?;
+
+    // Обновляем оба поля максимально близко друг к другу
+    {
+        let mut proxy_guard = state.proxy_url.write().await;
+        let mut http_guard = state.http.write().await;
+        *proxy_guard = proxy_url;
+        *http_guard = new_client;
+    }
 
     Ok(())
 }

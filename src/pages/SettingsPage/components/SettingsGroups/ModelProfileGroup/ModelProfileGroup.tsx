@@ -48,7 +48,7 @@ export default ({ settings, changeSettingsProperty }: SettingsGroupProps) => {
       name: 'New profile',
       aiService: DEFAULT_AI_SERVICE,
       serviceUrl: '',
-      isProxyEnabled: false,
+      // isProxyEnabled: false,
       model: '',
       temperature: 0.5
     }
@@ -123,10 +123,10 @@ export default ({ settings, changeSettingsProperty }: SettingsGroupProps) => {
       {/*     type='password' />} */}
       {isProfileIdValid &&
         <ApiKeyInput currentProfile={currentProfile} />}
-      {isProfileIdValid &&
-        <SwitchProperty id='profile-proxy-switch' label='Use proxy for this profile'
-          checked={currentProfile?.isProxyEnabled ?? false}
-          onChange={value => handleProfileFieldChange('isProxyEnabled', value)} />}
+      {/* {isProfileIdValid && */}
+      {/*   <SwitchProperty id='profile-proxy-switch' label='Use proxy for this profile' */}
+      {/*     checked={currentProfile?.isProxyEnabled ?? false} */}
+      {/*     onChange={value => handleProfileFieldChange('isProxyEnabled', value)} />} */}
       {isProfileIdValid &&
         <TextProperty id='profile-model-input' label='Model'
           value={currentProfile?.model ?? ""}

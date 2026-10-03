@@ -14,30 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+use std::time::Duration;
 
-import './styles/index.css';
-import useNeuralSetup from './hooks/useNeuralSetup';
-import useLoadTheme from './hooks/useLoadTheme';
-import useShowWindow from './hooks/useShowWindow';
-import AppBar from '@/components/AppBar/AppBar';
-import Outlet from '@/components/Outlet/Outlet';
-import { PageProvider } from './contexts/PageContext';
-import useProxySetup from './hooks/useProxySetup';
+pub fn build_shared_client(proxy: Option<&str>) -> Result<reqwest::Client, reqwest::Error> {
+    let mut builder = reqwest::Client::builder()
+        .connect_timeout(Duration::from_secs(10))
+        .timeout(Duration::from_secs(20));
 
-function App() {
-  useNeuralSetup();
-  useLoadTheme();
-  useShowWindow();
-  useProxySetup();
+    if let Some(proxy) = proxy {
+        if !proxy.trim().is_empty() {
+            builder = builder.proxy(reqwest::Proxy::all(proxy)?);
+        }
+    }
 
-  return (
-    <PageProvider>
-      <AppBar />
-      <main className='flex flex-col flex-1' >
-        <Outlet />
-      </main>
-    </PageProvider>
-  );
+    builder.build()
 }
-
-export default App;

@@ -46,7 +46,12 @@ export const TranslationProvider = ({ children }: PropsWithChildren) => {
   const [langPair, setLangPair] = useState<LangPair>(getUserMeta('lastLangPair'));
   const [sourceText, setSourceText] = useState('');
   const [textForQuery, setTextForQuery] = useState('');
-  const translationResult = useTranslateQuery({ term: textForQuery, sourceLang: langPair.source, targetLang: langPair.target });
+  const translationResult = useTranslateQuery({
+    engine: settings.translationEngine,
+    text: textForQuery,
+    sourceLang: langPair.source,
+    targetLang: langPair.target
+  });
 
   const [setTextForQueryDebounced, preventChangingTextForQuery]
     = useDebouncedCallback((value: string) => setTextForQuery(value), settings.autoTranslateDelay);

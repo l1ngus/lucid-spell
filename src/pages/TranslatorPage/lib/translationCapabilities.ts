@@ -15,29 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import './styles/index.css';
-import useNeuralSetup from './hooks/useNeuralSetup';
-import useLoadTheme from './hooks/useLoadTheme';
-import useShowWindow from './hooks/useShowWindow';
-import AppBar from '@/components/AppBar/AppBar';
-import Outlet from '@/components/Outlet/Outlet';
-import { PageProvider } from './contexts/PageContext';
-import useProxySetup from './hooks/useProxySetup';
+import type { TranslationEngine } from '@/bindings';
 
-function App() {
-  useNeuralSetup();
-  useLoadTheme();
-  useShowWindow();
-  useProxySetup();
-
-  return (
-    <PageProvider>
-      <AppBar />
-      <main className='flex flex-col flex-1' >
-        <Outlet />
-      </main>
-    </PageProvider>
-  );
-}
-
-export default App;
+// Mirrors `TranslationEngine::supports_other_translations` in the backend.
+// Keep both in sync when adding engines.
+export const supportsOtherTranslations = (engine: TranslationEngine): boolean =>
+  engine === 'llm';
