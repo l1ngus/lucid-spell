@@ -50,7 +50,7 @@ const Flashcard = forwardRef<FlashcardRef, FlashcardProps>(
           isScaling ? 'scale-95' : 'scale-100'
         )}
       >
-        <span className="w-full my-auto wrap-break-word">
+        <span className="max-w-full my-auto wrap-break-word">
           {isFlipped ? targetText : sourceText}
         </span>
       </div>
