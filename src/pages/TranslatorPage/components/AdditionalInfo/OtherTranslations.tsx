@@ -20,10 +20,10 @@ import type { ClassValue } from "clsx";
 import TransList from "./TransList";
 import useOtherTranslationsQuery from "../../hooks/queries/useOtherTranslationsQuery";
 import useTranslation from "../../hooks/useTranslation";
-import type { TranslateOthersResponse, TranslateOthersWithPartsResponse } from "../../types/TranslateResponse";
 import { Spinner } from "@/components/ui/spinner";
 import useSettings from "@/app/hooks/useSettings";
 import { useEffect, useState } from "react";
+import { supportsOtherTranslations } from "../../lib/translationCapabilities";
 
 interface OtherTranslationsProps {
   className?: ClassValue;
@@ -39,10 +39,12 @@ export default ({ className }: OtherTranslationsProps) => {
   const { translationResult, langPair, sourceText } = useTranslation();
   const [isManualFetch, setIsManualFetch] = useState(false);
 
+  const isSupported = supportsOtherTranslations(settings.translationEngine);
   const shouldAutoFetch = settings.isAutoAltTransFetchEnabled && !!translationResult.response.translation;
-  const isEnabled = shouldAutoFetch || isManualFetch;
+  const isEnabled = isSupported && (shouldAutoFetch || isManualFetch);
 
   const { response, isFetching } = useOtherTranslationsQuery({
+    engine: settings.translationEngine,
     sourceText,
     translatedText: translationResult.response.translation ?? '',
     sourceLang: langPair.source,
@@ -55,23 +57,15 @@ export default ({ className }: OtherTranslationsProps) => {
     if (!settings.isAutoAltTransFetchEnabled) setIsManualFetch(false);
   }, [sourceText]);
 
-  const isWithParts = response.otherTranslations.length > 0
-    && typeof (response.otherTranslations[0]) !== 'string'
-    && 'part' in response.otherTranslations[0];
+  if (!isSupported) return null;
 
-  let parsedTranslations: TrGroup[];
-  if (isWithParts) {
-    const trs = response.otherTranslations as TranslateOthersWithPartsResponse['otherTranslations'];
-    parsedTranslations = trs.reduce<TrGroup[]>((acc, tr) => {
-      const existing = acc.find(group => group.part === tr.part);
-      if (existing) existing.translations.push(tr.translation);
-      else acc.push({ part: tr.part, translations: [tr.translation] });
-      return acc;
-    }, []);
-  } else {
-    const trs = response.otherTranslations as TranslateOthersResponse['otherTranslations'];
-    parsedTranslations = [{ part: '', translations: trs }];
-  }
+  const parsedTranslations = response.otherTranslations.reduce<TrGroup[]>((acc, tr) => {
+    const part = tr.part ?? '';
+    const existing = acc.find(group => group.part === part);
+    if (existing) existing.translations.push(tr.translation);
+    else acc.push({ part, translations: [tr.translation] });
+    return acc;
+  }, []);
 
   return (
     <div className={cn(className)}>

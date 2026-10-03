@@ -19,10 +19,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { commands, TranslationRequest, TranslationResponse } from '@/bindings';
 import { type LangDetectionResult } from '@/app/types/LangDetectionResult';
 import type { LangCode } from "@/app/types/Langs";
-// import { getTranslationPrompt } from "@/app/consts/prompts";
-// import { type TranslateResponse, TranslateResponseScheme } from '../types/TranslateResponse'
 import useActiveLlmProfile from './useActiveLlmProfile';
-// import { extractAndParseJSON } from '@/app/helpers/parseLlmRespone';
 
 
 export default () => {
@@ -36,9 +33,6 @@ export default () => {
     if (response.status === 'error') {
       throw new Error(response.error);
     }
-
-    // const parsedData = extractAndParseJSON(response.data);
-    // const result = TranslateResponseScheme.parse(parsedData);
 
     return response.data;
   }

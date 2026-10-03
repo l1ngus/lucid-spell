@@ -38,14 +38,14 @@ pub fn run() {
     let builder = Builder::<tauri::Wry>::new()
         .commands(collect_commands![
             commands::llm::set_llm_config,
-            // commands::llm::ask_llm,
             commands::tts::speak,
             commands::tts::get_voices,
             commands::keys::save_profile_api_key,
             commands::keys::check_profile_api_key,
             commands::keys::remove_profile_api_key,
             commands::http_client::set_proxy,
-            commands::translation::translate
+            commands::translation::translate,
+            commands::translation::get_other_translations
         ])
         .typ::<models::ChatMessage>();
     #[cfg(debug_assertions)] // <- Only export on non-release builds
@@ -99,14 +99,14 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::lang::detect_language,
             commands::llm::set_llm_config,
-            // commands::llm::ask_llm,
             commands::tts::speak,
             commands::tts::get_voices,
             commands::keys::save_profile_api_key,
             commands::keys::check_profile_api_key,
             commands::keys::remove_profile_api_key,
             commands::http_client::set_proxy,
-            commands::translation::translate
+            commands::translation::translate,
+            commands::translation::get_other_translations
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

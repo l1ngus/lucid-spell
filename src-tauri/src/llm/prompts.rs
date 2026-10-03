@@ -60,3 +60,44 @@ pub fn translation_prompt(
         },
     )
 }
+
+const OTHER_TRANSLATIONS_PROMPT_TEMPLATE: &str = r#"You are a professional translator focusing on natural, everyday language. Your task is to provide a few practical and common alternative translations of the source text.
+
+Input data:
+- sourceText: {{ source_text }}
+- translatedText: {{ translated_text }} (Do NOT include this exact text in your output)
+- sourceLang: {{ source_lang }}
+- targetLang: {{ target_lang }}
+
+Rules:
+1. Analyze sourceText and its primary translatedText.
+2. Provide ONLY common, widely-used, and natural alternative translations. Do NOT invent rare, archaic, overly creative, or highly specific dictionary edge-cases. Be pragmatic and modest.
+3. Limit your output to a maximum of 3 to 5 best alternatives.
+4. If sourceText is a SINGLE WORD (no spaces), return word alternatives using parts of speech:
+{"otherTranslations":[{"part":"<part of speech>","translation":"<alternative translation>"}, ...]}
+5. If sourceText contains spaces (phrase or sentence), return phrase/sentence alternatives without parts of speech:
+{"otherTranslations":["<alternative translation 1>","<alternative translation 2>", ...]}
+6. If there are no genuinely common or practical alternative translations (e.g., proper nouns, simple unambiguous terms, technical terms, numbers), return:
+{"otherTranslations":[]}
+7. Return only alternative translations in targetLang.
+8. Do not add explanations, notes, markdown, or any text outside the JSON.
+9. Return STRICTLY valid JSON."#;
+
+pub fn other_translations_prompt(
+    source_text: &str,
+    translated_text: &str,
+    source_lang: &str,
+    target_lang: &str,
+) -> Result<String, minijinja::Error> {
+    let env = Environment::new();
+
+    env.render_str(
+        OTHER_TRANSLATIONS_PROMPT_TEMPLATE,
+        context! {
+            source_text => source_text,
+            translated_text => translated_text,
+            source_lang => source_lang,
+            target_lang => target_lang,
+        },
+    )
+}

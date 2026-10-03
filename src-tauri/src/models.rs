@@ -73,3 +73,32 @@ pub enum TranslationEngine {
     Llm,
     Google,
 }
+
+impl TranslationEngine {
+    pub fn supports_other_translations(&self) -> bool {
+        matches!(self, TranslationEngine::Llm)
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct OtherTranslationsRequest {
+    pub engine: TranslationEngine,
+    pub source_text: String,
+    pub translated_text: String,
+    pub source_lang: String,
+    pub target_lang: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct OtherTranslationEntry {
+    pub part: Option<String>,
+    pub translation: String,
+}
+
+#[derive(Debug, Clone, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct OtherTranslationsResponse {
+    pub other_translations: Vec<OtherTranslationEntry>,
+}

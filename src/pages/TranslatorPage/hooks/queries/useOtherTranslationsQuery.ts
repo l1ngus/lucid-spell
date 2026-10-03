@@ -16,15 +16,12 @@
  */
 
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
-import { commands } from '@/bindings';
-import useActiveLlmProfile from '../useActiveLlmProfile';
+import { commands, type OtherTranslationsResponse, type TranslationEngine } from '@/bindings';
 import { LangCode } from '@/app/types/Langs';
-import { TranslateOthersResponseScheme, TranslateOthersWithPartsResponseScheme, TranslateOthersWithPartsResponse, TranslateOthersResponse } from '../../types/TranslateResponse';
-import { getOtherTranslationsPrompt } from '@/app/consts/prompts';
-
-type OtherTranslationsResponse = TranslateOthersResponse | TranslateOthersWithPartsResponse;
+import { supportsOtherTranslations } from '../../lib/translationCapabilities';
 
 export interface UseOtherTranslationsQueryOptions {
+  engine: TranslationEngine;
   sourceText: string;
   translatedText: string;
   sourceLang: LangCode | 'auto';
@@ -32,51 +29,47 @@ export interface UseOtherTranslationsQueryOptions {
   maxSourceLength?: number;
   isEnabled?: boolean;
 }
+
 export type UseOtherTranslationsQueryResult = {
   response: OtherTranslationsResponse;
 } & Pick<UseQueryResult<OtherTranslationsResponse>, 'isFetching' | 'isError' | 'error'>
 
 export default (translateOptions: UseOtherTranslationsQueryOptions): UseOtherTranslationsQueryResult => {
-  const llmProfile = useActiveLlmProfile();
+  const { engine, sourceText, translatedText, sourceLang, targetLang } = translateOptions;
 
-  const fetchOtherTranslations = async ({ sourceText, translatedText, sourceLang, targetLang }: UseOtherTranslationsQueryOptions): Promise<OtherTranslationsResponse> => {
-    if (!llmProfile) throw new Error("No LLM profile selected.");
-    const prompt = getOtherTranslationsPrompt({ sourceText, translatedText, sourceLang, targetLang });
-    console.log(`Alt request; isEn: ${translateOptions.isEnabled}`);
-    const response = await commands.askLlm([{
-      role: 'user',
-      content: prompt
-    }], llmProfile.model, .7);
+  const fetchOtherTranslations = async (): Promise<OtherTranslationsResponse> => {
+    const response = await commands.getOtherTranslations({
+      engine,
+      sourceText,
+      translatedText,
+      sourceLang,
+      targetLang
+    });
     if (response.status === 'error')
       throw new Error(response.error);
-    const cleanStr = response.data
-      .replace(/^(```|""")\w*\n/, "")
-      .replace(/(```|""")$/, "");
-    const parsedStr = JSON.parse(cleanStr);
-    const simpleResult = TranslateOthersResponseScheme.safeParse(parsedStr);
-
-    if (simpleResult.success)
-      return simpleResult.data;
-    const result = TranslateOthersWithPartsResponseScheme.parse(parsedStr);
-    return result;
+    return response.data;
   }
 
-  const isEnabled = !!llmProfile
+  const isEnabled = supportsOtherTranslations(engine)
     && (translateOptions.isEnabled || typeof (translateOptions.isEnabled) === 'undefined')
     && (
-      !!translateOptions.translatedText
-      && (!translateOptions.maxSourceLength || translateOptions.sourceText.length <= translateOptions.maxSourceLength)
+      !!translatedText
+      && (!translateOptions.maxSourceLength || sourceText.length <= translateOptions.maxSourceLength)
     );
 
   const { data, isFetching, isError, error } = useQuery({
-    queryKey: ['transalte-other-key',
-      translateOptions.translatedText,
-      translateOptions.sourceLang,
-      translateOptions.targetLang
+    queryKey: ['translate-other-key',
+      engine,
+      sourceText,
+      translatedText,
+      sourceLang,
+      targetLang
     ],
-    queryFn: () => fetchOtherTranslations(translateOptions),
+    queryFn: fetchOtherTranslations,
     enabled: isEnabled,
     retry: false,
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60 * 24,
   })
 
   return { response: data ?? { otherTranslations: [] }, isFetching, isError, error };

@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::models::{TranslationRequest, TranslationResponse};
+use crate::models::{
+    OtherTranslationsRequest, OtherTranslationsResponse, TranslationRequest, TranslationResponse,
+};
 use crate::state::AppState;
 use std::sync::Arc;
 use tauri::State;
@@ -26,4 +28,13 @@ pub async fn translate(
     state: State<'_, Arc<AppState>>,
 ) -> Result<TranslationResponse, String> {
     crate::translation::service::translate(request, state).await
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn get_other_translations(
+    request: OtherTranslationsRequest,
+    state: State<'_, Arc<AppState>>,
+) -> Result<OtherTranslationsResponse, String> {
+    crate::translation::service::get_other_translations(request, state).await
 }

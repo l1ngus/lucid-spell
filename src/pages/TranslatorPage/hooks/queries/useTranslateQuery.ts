@@ -18,7 +18,6 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import useTranslator from '../useTranslator';
 import { TranslationRequest, type TranslationResponse } from '@/bindings';
-// import { type TranslateResponse } from '../../types/TranslateResponse';
 import useSettings from '@/app/hooks/useSettings';
 
 

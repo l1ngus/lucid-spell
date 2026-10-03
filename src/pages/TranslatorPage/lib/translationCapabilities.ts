@@ -14,6 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-pub mod alternatives;
-pub mod google;
-pub mod llm;
+
+import type { TranslationEngine } from '@/bindings';
+
+// Mirrors `TranslationEngine::supports_other_translations` in the backend.
+// Keep both in sync when adding engines.
+export const supportsOtherTranslations = (engine: TranslationEngine): boolean =>
+  engine === 'llm';

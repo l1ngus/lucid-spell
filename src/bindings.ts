@@ -63,6 +63,14 @@ async translate(request: TranslationRequest) : Promise<Result<TranslationRespons
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+async getOtherTranslations(request: OtherTranslationsRequest) : Promise<Result<OtherTranslationsResponse, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_other_translations", { request }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -79,6 +87,9 @@ async translate(request: TranslationRequest) : Promise<Result<TranslationRespons
 export type ChatMessage = { role: string; content: string }
 export type KeyStatus = { profile_id: string; is_saved: boolean }
 export type KeyStoreError = { type: "MissingKeyringDaemon"; message: string } | { type: "Unknown"; message: string }
+export type OtherTranslationEntry = { part: string | null; translation: string }
+export type OtherTranslationsRequest = { engine: TranslationEngine; sourceText: string; translatedText: string; sourceLang: string; targetLang: string }
+export type OtherTranslationsResponse = { otherTranslations: OtherTranslationEntry[] }
 export type TranslationEngine = "llm" | "google"
 export type TranslationRequest = { engine: TranslationEngine; text: string; sourceLang: string; targetLang: string }
 export type TranslationResponse = { translation: string; detectedSourceLang: string | null; sourceCorrection: string | null }

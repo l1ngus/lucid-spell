@@ -14,8 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::models::{TranslationEngine, TranslationRequest, TranslationResponse};
+use crate::models::{
+    OtherTranslationsRequest, OtherTranslationsResponse, TranslationEngine, TranslationRequest,
+    TranslationResponse,
+};
 use crate::state::AppState;
+use crate::translation::engines::alternatives::get_other_translations_llm;
 use crate::translation::engines::google::translate_google;
 use crate::translation::engines::llm::translate_llm;
 use std::sync::Arc;
@@ -49,4 +53,27 @@ pub async fn translate(
         .await
         .map_err(|e| e.to_string()),
     }
+}
+
+pub async fn get_other_translations(
+    request: OtherTranslationsRequest,
+    state: State<'_, Arc<AppState>>,
+) -> Result<OtherTranslationsResponse, String> {
+    if !request.engine.supports_other_translations() {
+        return Err("Other translations are not supported by the selected translation engine."
+            .to_string());
+    }
+
+    let client = state.http.read().await.clone();
+    let llm_settings = state.llm.read().await.clone();
+
+    get_other_translations_llm(
+        &client,
+        &llm_settings,
+        &request.source_text,
+        &request.translated_text,
+        &request.source_lang,
+        &request.target_lang,
+    )
+    .await
 }
