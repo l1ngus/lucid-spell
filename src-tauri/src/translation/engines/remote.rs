@@ -14,16 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::llm::client::ask_llm;
-use crate::llm::parser::clean_llm_output;
-use crate::llm::prompts::{translation_prompt, TranslationPromptOutput};
-use crate::logic::keychain::get_key;
-use crate::models::{ChatMessage, TranslationResponse};
-use crate::state::LlmSettings;
+use crate::app_state::RemoteLlmSettings;
+use crate::dto::{ChatMessage, TranslationResponse};
+use crate::infra::keychain::get_key;
+use crate::remote_llm::openai_client::ask_llm;
+use crate::remote_llm::prompts::{translation_prompt, TranslationPromptOutput};
+use crate::remote_llm::sanitize::clean_llm_output;
 
 pub async fn translate_llm(
     client: &reqwest::Client,
-    llm_settings: &LlmSettings,
+    llm_settings: &RemoteLlmSettings,
     text: &str,
     source_lang: &str,
     target_lang: &str,

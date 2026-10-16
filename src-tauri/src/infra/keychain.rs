@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::KeyStoreError;
+use crate::dto::KeyStoreError;
 use keyring::Entry;
 
 const SERVICE_NAME: &str = "io.github.l1ngus.lucid-spell.api_keys";

@@ -15,8 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::logic::keychain;
-use crate::state::AppState;
+use crate::app_state::AppState;
+use crate::infra::keychain;
 use std::sync::Arc;
 use tauri::State;
 
@@ -30,7 +30,7 @@ pub async fn set_llm_config(
     state: State<'_, Arc<AppState>>,
 ) -> Result<(), String> {
     keychain::get_key(&profile_id).map_err(|e| e.to_string())?;
-    let mut llm_config = state.llm.write().await;
+    let mut llm_config = state.remote.write().await;
     llm_config.profile_id = profile_id;
     llm_config.api_url = api_url;
     llm_config.model = model;

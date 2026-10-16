@@ -14,14 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::models::{
+use crate::app_state::AppState;
+use crate::dto::{
     OtherTranslationsRequest, OtherTranslationsResponse, TranslationEngine, TranslationRequest,
     TranslationResponse,
 };
-use crate::state::AppState;
 use crate::translation::engines::alternatives::get_other_translations_llm;
 use crate::translation::engines::google::translate_google;
-use crate::translation::engines::llm::translate_llm;
+use crate::translation::engines::remote::translate_llm;
 use std::sync::Arc;
 use tauri::State;
 
@@ -29,11 +29,11 @@ pub async fn translate(
     request: TranslationRequest,
     state: State<'_, Arc<AppState>>,
 ) -> Result<TranslationResponse, String> {
-    let client = state.http.read().await.clone();
+    let client = state.http.client.read().await.clone();
 
     match request.engine {
         TranslationEngine::Llm => {
-            let llm_settings = state.llm.read().await.clone();
+            let llm_settings = state.remote.read().await.clone();
             let res = translate_llm(
                 &client,
                 &llm_settings,
@@ -60,12 +60,13 @@ pub async fn get_other_translations(
     state: State<'_, Arc<AppState>>,
 ) -> Result<OtherTranslationsResponse, String> {
     if !request.engine.supports_other_translations() {
-        return Err("Other translations are not supported by the selected translation engine."
-            .to_string());
+        return Err(
+            "Other translations are not supported by the selected translation engine.".to_string(),
+        );
     }
 
-    let client = state.http.read().await.clone();
-    let llm_settings = state.llm.read().await.clone();
+    let client = state.http.client.read().await.clone();
+    let llm_settings = state.remote.read().await.clone();
 
     get_other_translations_llm(
         &client,

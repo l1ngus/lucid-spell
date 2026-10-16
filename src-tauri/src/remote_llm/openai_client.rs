@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::logic::parse_chat_messages;
-use crate::models::ChatMessage;
+use crate::dto::ChatMessage;
+use crate::infra::parse_chat_messages;
 use async_openai::{config::OpenAIConfig, types::chat::CreateChatCompletionRequestArgs, Client};
 use serde_json::Value;
 

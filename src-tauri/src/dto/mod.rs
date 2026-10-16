@@ -15,6 +15,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-pub mod client;
-pub mod parser;
-pub mod prompts;
+#![allow(dead_code)]
+
+pub mod chat;
+pub mod keys;
+pub mod translation;
+
+pub use chat::ChatMessage;
+pub use keys::{KeyStatus, KeyStoreError};
+pub use translation::{
+    OtherTranslationEntry, OtherTranslationsRequest, OtherTranslationsResponse, TranslationEngine,
+    TranslationRequest, TranslationResponse,
+};

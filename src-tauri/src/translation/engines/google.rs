@@ -15,8 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::models::TranslationResponse;
-use crate::translation::lang_codes::{from_google_code, to_google_code};
+use crate::dto::TranslationResponse;
+use crate::translation::google_codes::{from_google_code, to_google_code};
 use reqwest::StatusCode;
 use serde_json::Value;
 use thiserror::Error;
