@@ -14,10 +14,12 @@ jobs:
       matrix:
         include:
           - platform: 'macos-latest'
+            target: 'aarch64-apple-darwin'
             args: '--target aarch64-apple-darwin'
-          - platform: 'macos-latest'
+          - platform: 'macos-15-intel'
+            target: 'x86_64-apple-darwin'
             args: '--target x86_64-apple-darwin'
-          - platform: 'ubuntu-22.04'
+          - platform: 'ubuntu-24.04'
             args: ''
           - platform: 'windows-latest'
             args: ''
@@ -32,15 +34,51 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.target || '' }}
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: './src-tauri -> target'
 
+      - name: Cache Intel ONNX Runtime
+        id: ort-cache
+        if: matrix.target == 'x86_64-apple-darwin'
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/onnxruntime-build/MacOS
+          key: onnxruntime-1.31.0-macos-15-intel-x86_64-static-v1
+
+      - name: Build ONNX Runtime for Intel macOS
+        if: matrix.target == 'x86_64-apple-darwin' && steps.ort-cache.outputs.cache-hit != 'true'
+        env:
+          ORT_SOURCE_DIR: ${{ runner.temp }}/onnxruntime-source
+          ORT_BUILD_DIR: ${{ runner.temp }}/onnxruntime-build/MacOS
+        run: |
+          git clone --depth 1 --branch v1.31.0 --recurse-submodules \
+            https://github.com/microsoft/onnxruntime.git "$ORT_SOURCE_DIR"
+          cd "$ORT_SOURCE_DIR"
+          python3 tools/ci_build/build.py \
+            --build_dir "$ORT_BUILD_DIR" \
+            --config Release \
+            --parallel 3 \
+            --skip_tests \
+            --skip_submodule_sync \
+            --no_telemetry \
+            --osx_arch x86_64 \
+            --apple_deploy_target 13.4
+
+      - name: Configure Intel ONNX Runtime
+        if: matrix.target == 'x86_64-apple-darwin'
+        env:
+          ORT_LIB_PATH: ${{ runner.temp }}/onnxruntime-build/MacOS/Release
+        run: |
+          test -d "$ORT_LIB_PATH"
+          find "$ORT_LIB_PATH" -type f -name 'libonnxruntime*.a' -print -quit | grep -q .
+          echo "ORT_LIB_PATH=$ORT_LIB_PATH" >> "$GITHUB_ENV"
+
       - name: Install system dependencies (Linux only)
-        if: matrix.platform == 'ubuntu-22.04'
+        if: matrix.platform == 'ubuntu-24.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
