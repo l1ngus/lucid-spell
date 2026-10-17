@@ -23,6 +23,7 @@ import {
   Cpu,
   Download,
   HardDrive,
+  Info,
   Languages,
   LoaderCircle,
   ScanText,
@@ -30,6 +31,7 @@ import {
 } from 'lucide-react';
 import { commands, type OcrDownloadProgress, type OcrModelInfo, type OcrStatusResponse } from '@/bindings';
 import { Button } from '@/components/ui/button';
+import Tooltip from '@/components/ui/Tooltip';
 import GroupHeading from './GroupHeading';
 import GroupWrapper from './GroupWrapper';
 
@@ -54,7 +56,7 @@ function getOperationLabel(operation: OcrOperation, models: OcrModelInfo[]): str
   if (operation.action === 'initialize') return 'Starting OCR…';
 
   const modelName = operation.modelId === 'detection'
-    ? 'OCR detector'
+    ? operation.action === 'install' ? 'OCR detector and English model' : 'OCR detector'
     : models.find(model => model.id === operation.modelId)?.name ?? 'recognition model';
 
   return operation.action === 'install'
@@ -165,7 +167,7 @@ export default function OcrGroup() {
     }
   };
 
-  const installDetector = () => installModel('detection', []);
+  const installDetector = () => installModel('detection', ['eng']);
 
   const removeDetector = async () => {
     setOperation({ modelId: 'detection', action: 'remove' });
@@ -196,11 +198,14 @@ export default function OcrGroup() {
 
   return (
     <GroupWrapper className="gap-3">
-      <GroupHeading>OCR</GroupHeading>
-
-      <p className="mx-auto -mt-1 max-w-lg text-center text-sm text-muted-foreground">
-        Read text from images locally. Download the shared detector and the recognition models for the languages you need.
-      </p>
+      <div className="flex items-center justify-center gap-1">
+        <div className='flex items-center gap-1'>
+          <GroupHeading>OCR</GroupHeading>
+        <Tooltip hint={<p>Extracts text from images using the detector and selected language models.</p>}>
+            <Info className="size-4 cursor-help text-muted-foreground hover:text-foreground" aria-hidden="true" />
+          </Tooltip>
+        </div>
+      </div>
 
       {error && (
         <div role="alert" className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
@@ -239,52 +244,51 @@ export default function OcrGroup() {
         </div>
       )}
 
-      <section aria-labelledby="ocr-detector-heading" className="rounded-xl border bg-card p-4 shadow-sm">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex min-w-0 items-start gap-3">
-            <div className="rounded-lg bg-primary/10 p-2 text-primary">
-              <ScanText className="size-5" aria-hidden="true" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 id="ocr-detector-heading" className="font-semibold">Text detector</h3>
-                {status?.detectionInstalled && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                    <Check className="size-3" aria-hidden="true" /> Installed
-                  </span>
-                )}
-                {status?.detectionLoaded && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                    <Cpu className="size-3" aria-hidden="true" /> Running
-                  </span>
-                )}
-              </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Shared by every recognition model. Removing it turns OCR off until it is downloaded again.
-              </p>
-              <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-                <HardDrive className="size-3.5" aria-hidden="true" />
-                {status ? formatBytes(status.detectionSizeBytes) : '…'}
-              </p>
-            </div>
-          </div>
-          <Button
-            type="button"
-            variant={status?.detectionInstalled ? 'outline' : 'default'}
-            className="shrink-0"
-            disabled={isLoading || isBusy || !status}
-            onClick={status?.detectionInstalled ? removeDetector : installDetector}
-          >
-            {status?.detectionInstalled ? <Trash2 aria-hidden="true" /> : <Download aria-hidden="true" />}
-            {status?.detectionInstalled ? 'Remove' : 'Download'}
-          </Button>
+      <section aria-labelledby="ocr-detector-heading" className="flex min-w-0 items-center gap-2 rounded-lg border bg-card px-2.5 py-2">
+        <div className="rounded-md bg-primary/10 p-1.5 text-primary">
+          <ScanText className="size-4" aria-hidden="true" />
         </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <h3 id="ocr-detector-heading" className="text-sm font-medium">Text detector</h3>
+            <Tooltip hint={<p>Finds text in images; required by all recognition models.</p>}>
+              <Info className="size-3.5 cursor-help text-muted-foreground hover:text-foreground" aria-hidden="true" />
+            </Tooltip>
+            {status?.detectionLoaded ? (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium leading-none text-primary">
+                <Cpu className="size-3" aria-hidden="true" /> Running
+              </span>
+            ) : status?.detectionInstalled ? (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium leading-none text-emerald-700 dark:text-emerald-400">
+                <Check className="size-3" aria-hidden="true" /> Installed
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-0.5 flex items-center gap-1 text-xs leading-tight text-muted-foreground">
+            <HardDrive className="size-3 shrink-0" aria-hidden="true" />
+            {status ? formatBytes(status.detectionSizeBytes) : '…'}
+          </p>
+        </div>
+        <Button
+          type="button"
+          size="icon-sm"
+          variant={status?.detectionInstalled ? 'outline' : 'secondary'}
+          className="size-7 shrink-0"
+          aria-label={`${status?.detectionInstalled ? 'Remove' : 'Download'} text detector`}
+          title={`${status?.detectionInstalled ? 'Remove' : 'Download'} text detector`}
+          disabled={isLoading || isBusy || !status}
+          onClick={status?.detectionInstalled ? removeDetector : installDetector}
+        >
+          {status?.detectionInstalled ? <Trash2 aria-hidden="true" /> : <Download aria-hidden="true" />}
+        </Button>
       </section>
 
       <div className="flex items-end justify-between gap-3 pt-1">
-        <div>
+        <div className="flex items-center gap-1.5">
           <h3 className="font-semibold">Recognition models</h3>
-          <p className="text-sm text-muted-foreground">Choose the scripts you want OCR to recognize.</p>
+          <Tooltip hint={<p>Reads text in supported languages. Install only the languages you need.</p>}>
+            <Info className="size-3.5 cursor-help text-muted-foreground hover:text-foreground" aria-hidden="true" />
+          </Tooltip>
         </div>
         {!isLoading && status && (
           <span className="shrink-0 text-xs text-muted-foreground">
