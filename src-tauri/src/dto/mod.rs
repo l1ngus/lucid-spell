@@ -19,10 +19,15 @@
 
 pub mod chat;
 pub mod keys;
+pub mod ocr;
 pub mod translation;
 
 pub use chat::ChatMessage;
 pub use keys::{KeyStatus, KeyStoreError};
+pub use ocr::{
+    OcrDownloadProgress, OcrInstallRequest, OcrLine, OcrModelInfo, OcrPoint, OcrRequest,
+    OcrResponse, OcrStatusResponse,
+};
 pub use translation::{
     OtherTranslationEntry, OtherTranslationsRequest, OtherTranslationsResponse, TranslationEngine,
     TranslationRequest, TranslationResponse,

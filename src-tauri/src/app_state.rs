@@ -16,10 +16,13 @@
  */
 
 use crate::infra::http_client::build_shared_client;
+use crate::ocr::engine::OcrEngine;
 use msedge_tts::voice::Voice;
+use ort::environment::Environment;
 use reqwest::Client as HttpClient;
 use rodio::mixer::Mixer;
 use rodio::OutputStream;
+use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
 
@@ -118,9 +121,39 @@ impl SpeechState {
     }
 }
 
+/// Local OCR: where the models live, the ONNX Runtime environment and the
+/// loaded sessions.
+///
+/// Nothing is downloaded or loaded before the user explicitly installs models
+/// and calls `initialize_ocr`; `ocr_image` fails with a clear error until then.
+pub struct OcrState {
+    /// Directory with the downloaded models (`<app data dir>/ocr-models`).
+    /// Set once in the Tauri `setup` hook.
+    pub models_dir: std::sync::OnceLock<PathBuf>,
+    /// ONNX Runtime allows a single environment per process; it is created on
+    /// the first `initialize_ocr` call.
+    pub environment: std::sync::OnceLock<Environment>,
+    /// Loaded ONNX sessions, `None` until OCR is initialized.
+    pub engine: std::sync::Mutex<Option<OcrEngine>>,
+    /// Serializes model installation, removal and initialization.
+    pub install_lock: Mutex<()>,
+}
+
+impl Default for OcrState {
+    fn default() -> Self {
+        Self {
+            models_dir: std::sync::OnceLock::new(),
+            environment: std::sync::OnceLock::new(),
+            engine: std::sync::Mutex::new(None),
+            install_lock: Mutex::new(()),
+        }
+    }
+}
+
 #[derive(Default)]
 pub struct AppState {
     pub http: HttpState,
     pub llm: RwLock<LlmSettings>,
+    pub ocr: OcrState,
     pub speech: SpeechState,
 }

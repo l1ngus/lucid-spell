@@ -20,5 +20,6 @@ pub mod http_client;
 pub mod keys;
 pub mod lang;
 pub mod llm;
+pub mod ocr;
 pub mod translation;
 pub mod tts;

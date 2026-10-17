@@ -71,6 +71,67 @@ async getOtherTranslations(request: OtherTranslationsRequest) : Promise<Result<O
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+/**
+ * Returns which OCR models are downloaded and which ONNX sessions are loaded.
+ */
+async getOcrStatus() : Promise<Result<OcrStatusResponse, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_ocr_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Downloads recognition models for the given languages (ISO 639-3) together
+ * with the shared text detection model. Emits `ocr-download-progress` events
+ * while downloading; nothing is loaded into memory until `initialize_ocr`.
+ */
+async installOcrLanguages(request: OcrInstallRequest) : Promise<Result<OcrStatusResponse, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("install_ocr_languages", { request }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Deletes the recognition model of the given language (ISO 639-3). Model
+ * groups are shared between languages of the same script, so other languages
+ * may become unavailable as well.
+ */
+async uninstallOcrLanguage(language: string) : Promise<Result<OcrStatusResponse, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("uninstall_ocr_language", { language }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Loads all installed models into ONNX Runtime sessions. This is the first
+ * call that allocates memory for the models; `ocr_image` fails before it.
+ */
+async initializeOcr() : Promise<Result<OcrStatusResponse, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("initialize_ocr") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Recognizes all text on an image (base64 or a file path) and returns the
+ * recognized lines with their confidence and coordinates.
+ */
+async ocrImage(request: OcrRequest) : Promise<Result<OcrResponse, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("ocr_image", { request }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -87,6 +148,92 @@ async getOtherTranslations(request: OtherTranslationsRequest) : Promise<Result<O
 export type ChatMessage = { role: string; content: string }
 export type KeyStatus = { profile_id: string; is_saved: boolean }
 export type KeyStoreError = { type: "MissingKeyringDaemon"; message: string } | { type: "Unknown"; message: string }
+/**
+ * Payload of the `ocr-download-progress` event.
+ */
+export type OcrDownloadProgress = { 
+/**
+ * Model group id (`english`, ...) or `detection`.
+ */
+model: string; fileName: string; downloadedBytes: number; totalBytes: number; 
+/**
+ * 0.0..=1.0
+ */
+progress: number }
+export type OcrInstallRequest = { 
+/**
+ * ISO 639-3 language codes to install (e.g. `["eng", "rus"]`).
+ */
+languages: string[] }
+export type OcrLine = { text: string; confidence: number; 
+/**
+ * Detected text quadrilateral in original image pixels (clockwise).
+ */
+bbox: OcrPoint[] }
+/**
+ * State of a single recognition model (language group).
+ */
+export type OcrModelInfo = { 
+/**
+ * Model group id (e.g. `english`, `eslav`).
+ */
+id: string; 
+/**
+ * Human readable name.
+ */
+name: string; 
+/**
+ * ISO 639-3 codes covered by this model.
+ */
+languages: string[]; 
+/**
+ * Recognition model and dictionary are downloaded.
+ */
+installed: boolean; 
+/**
+ * Model is loaded into memory (after `initialize_ocr`).
+ */
+loaded: boolean; 
+/**
+ * Download size of the recognition model + dictionary.
+ */
+sizeBytes: number }
+export type OcrPoint = { x: number; y: number }
+/**
+ * Request to recognize text on an image.
+ * Exactly one of `image_base64` / `image_path` must be provided.
+ */
+export type OcrRequest = { 
+/**
+ * Base64-encoded image, either raw base64 or a `data:image/...;base64,...` URL.
+ */
+imageBase64: string | null; 
+/**
+ * Absolute path to an image file on disk.
+ */
+imagePath: string | null; 
+/**
+ * Language of the text on the image (ISO 639-3, e.g. `eng`).
+ */
+lang: string }
+export type OcrResponse = { 
+/**
+ * All recognized lines joined with `\n`.
+ */
+text: string; lines: OcrLine[]; imageWidth: number; imageHeight: number; 
+/**
+ * Resolved language (ISO 639-3).
+ */
+lang: string; 
+/**
+ * Recognition model that was used (e.g. `english`).
+ */
+model: string }
+export type OcrStatusResponse = { 
+/**
+ * ONNX sessions are loaded: `ocr_image` can be called.
+ */
+initialized: boolean; modelsDir: string; detectionInstalled: boolean; detectionLoaded: boolean; detectionSizeBytes: number; models: OcrModelInfo[] }
 export type OtherTranslationEntry = { part: string | null; translation: string }
 export type OtherTranslationsRequest = { engine: TranslationEngine; sourceText: string; translatedText: string; sourceLang: string; targetLang: string }
 export type OtherTranslationsResponse = { otherTranslations: OtherTranslationEntry[] }
