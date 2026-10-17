@@ -31,7 +31,7 @@ pub(crate) struct OutputStreamHandle(pub(crate) Option<OutputStream>);
 unsafe impl Send for OutputStreamHandle {}
 
 #[derive(Default, Clone)]
-pub struct RemoteLlmSettings {
+pub struct LlmSettings {
     pub profile_id: String,
     pub api_url: String,
     pub model: String,
@@ -121,6 +121,6 @@ impl SpeechState {
 #[derive(Default)]
 pub struct AppState {
     pub http: HttpState,
-    pub remote: RwLock<RemoteLlmSettings>,
+    pub llm: RwLock<LlmSettings>,
     pub speech: SpeechState,
 }

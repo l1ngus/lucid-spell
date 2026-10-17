@@ -21,7 +21,7 @@ use crate::dto::{
 };
 use crate::translation::engines::alternatives::get_other_translations_llm;
 use crate::translation::engines::google::translate_google;
-use crate::translation::engines::remote::translate_llm;
+use crate::translation::engines::llm::translate_llm;
 use std::sync::Arc;
 use tauri::State;
 
@@ -33,7 +33,7 @@ pub async fn translate(
 
     match request.engine {
         TranslationEngine::Llm => {
-            let llm_settings = state.remote.read().await.clone();
+            let llm_settings = state.llm.read().await.clone();
             let res = translate_llm(
                 &client,
                 &llm_settings,
@@ -66,7 +66,7 @@ pub async fn get_other_translations(
     }
 
     let client = state.http.client.read().await.clone();
-    let llm_settings = state.remote.read().await.clone();
+    let llm_settings = state.llm.read().await.clone();
 
     get_other_translations_llm(
         &client,

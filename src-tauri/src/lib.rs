@@ -19,7 +19,7 @@ mod app_state;
 mod commands;
 mod dto;
 mod infra;
-mod remote_llm;
+mod llm;
 mod translation;
 
 use app_state::AppState;

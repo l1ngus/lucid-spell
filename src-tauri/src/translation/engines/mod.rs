@@ -16,4 +16,4 @@
  */
 pub mod alternatives;
 pub mod google;
-pub mod remote;
+pub mod llm;

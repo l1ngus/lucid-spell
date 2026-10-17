@@ -30,7 +30,7 @@ pub async fn set_llm_config(
     state: State<'_, Arc<AppState>>,
 ) -> Result<(), String> {
     keychain::get_key(&profile_id).map_err(|e| e.to_string())?;
-    let mut llm_config = state.remote.write().await;
+    let mut llm_config = state.llm.write().await;
     llm_config.profile_id = profile_id;
     llm_config.api_url = api_url;
     llm_config.model = model;

@@ -14,12 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::app_state::RemoteLlmSettings;
+use crate::app_state::LlmSettings;
 use crate::dto::{ChatMessage, OtherTranslationEntry, OtherTranslationsResponse};
 use crate::infra::keychain::get_key;
-use crate::remote_llm::openai_client::ask_llm;
-use crate::remote_llm::prompts::other_translations_prompt;
-use crate::remote_llm::sanitize::clean_llm_output;
+use crate::llm::openai_client::ask_llm;
+use crate::llm::prompts::other_translations_prompt;
+use crate::llm::sanitize::clean_llm_output;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -37,7 +37,7 @@ enum RawOtherTranslationEntry {
 
 pub async fn get_other_translations_llm(
     client: &reqwest::Client,
-    llm_settings: &RemoteLlmSettings,
+    llm_settings: &LlmSettings,
     source_text: &str,
     translated_text: &str,
     source_lang: &str,
