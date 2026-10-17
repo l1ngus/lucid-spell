@@ -205,6 +205,27 @@ pub async fn uninstall_language(
     status(&state.ocr).map_err(Into::into)
 }
 
+/// Removes the shared text detection model and unloads all ONNX sessions.
+pub async fn uninstall_detection_model(state: &Arc<AppState>) -> Result<OcrStatusResponse, String> {
+    let _guard = state.ocr.install_lock.lock().await;
+    let models_dir = models_dir(&state.ocr)?;
+
+    let state_for_task = Arc::clone(state);
+    tauri::async_runtime::spawn_blocking(move || {
+        let mut engine = state_for_task
+            .ocr
+            .engine
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+        *engine = None;
+    })
+    .await
+    .map_err(|error| format!("Failed to unload the OCR models: {error}"))?;
+
+    models::remove_files(&models::detection_files(&models_dir)).await?;
+    status(&state.ocr).map_err(Into::into)
+}
+
 /// Loads the detection model and all installed recognition models into ONNX
 /// Runtime sessions. Requires at least the detection model and one recognition
 /// model to be installed.

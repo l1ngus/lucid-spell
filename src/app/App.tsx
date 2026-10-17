@@ -23,12 +23,14 @@ import AppBar from '@/components/AppBar/AppBar';
 import Outlet from '@/components/Outlet/Outlet';
 import { PageProvider } from './contexts/PageContext';
 import useProxySetup from './hooks/useProxySetup';
+import useOcrSetup from './hooks/useOcrSetup';
 
 function App() {
   useNeuralSetup();
   useLoadTheme();
   useShowWindow();
   useProxySetup();
+  useOcrSetup();
 
   return (
     <PageProvider>

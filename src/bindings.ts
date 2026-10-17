@@ -110,6 +110,17 @@ async uninstallOcrLanguage(language: string) : Promise<Result<OcrStatusResponse,
 }
 },
 /**
+ * Deletes the shared OCR text detection model and unloads all OCR sessions.
+ */
+async uninstallOcrDetectionModel() : Promise<Result<OcrStatusResponse, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("uninstall_ocr_detection_model") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Loads all installed models into ONNX Runtime sessions. This is the first
  * call that allocates memory for the models; `ocr_image` fails before it.
  */

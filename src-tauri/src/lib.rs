@@ -46,6 +46,7 @@ fn specta_builder() -> Builder<tauri::Wry> {
             commands::ocr::get_ocr_status,
             commands::ocr::install_ocr_languages,
             commands::ocr::uninstall_ocr_language,
+            commands::ocr::uninstall_ocr_detection_model,
             commands::ocr::initialize_ocr,
             commands::ocr::ocr_image
         ])
@@ -102,6 +103,7 @@ pub fn run() {
             commands::ocr::get_ocr_status,
             commands::ocr::install_ocr_languages,
             commands::ocr::uninstall_ocr_language,
+            commands::ocr::uninstall_ocr_detection_model,
             commands::ocr::initialize_ocr,
             commands::ocr::ocr_image
         ])

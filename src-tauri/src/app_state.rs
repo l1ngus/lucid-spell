@@ -124,8 +124,9 @@ impl SpeechState {
 /// Local OCR: where the models live, the ONNX Runtime environment and the
 /// loaded sessions.
 ///
-/// Nothing is downloaded or loaded before the user explicitly installs models
-/// and calls `initialize_ocr`; `ocr_image` fails with a clear error until then.
+/// Models are downloaded on demand. Once the detector and a recognition model
+/// are installed, the frontend initializes them on startup and after install.
+/// `ocr_image` fails with a clear error until the engine is initialized.
 pub struct OcrState {
     /// Directory with the downloaded models (`<app data dir>/ocr-models`).
     /// Set once in the Tauri `setup` hook.

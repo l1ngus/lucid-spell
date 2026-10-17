@@ -52,6 +52,15 @@ pub async fn uninstall_ocr_language(
     crate::ocr::service::uninstall_language(language, state.inner()).await
 }
 
+/// Deletes the shared OCR text detection model and unloads all OCR sessions.
+#[tauri::command]
+#[specta::specta]
+pub async fn uninstall_ocr_detection_model(
+    state: State<'_, Arc<AppState>>,
+) -> Result<OcrStatusResponse, String> {
+    crate::ocr::service::uninstall_detection_model(state.inner()).await
+}
+
 /// Loads all installed models into ONNX Runtime sessions. This is the first
 /// call that allocates memory for the models; `ocr_image` fails before it.
 #[tauri::command]
