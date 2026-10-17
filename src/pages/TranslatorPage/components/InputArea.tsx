@@ -24,15 +24,16 @@ import useTranslation from '../hooks/useTranslation';
 import useSettings from '@/app/hooks/useSettings';
 import useDetectAndSwap from '../hooks/useDetectAndSwap';
 import useTextToSpeech from '../hooks/useTextToSpeech';
+import useOcrPaste from '../hooks/useOcrPaste';
 
 
 export default function () {
   const { settings } = useSettings();
   const detectAndSwapLangs = useDetectAndSwap();
-  const { translateCurrent, updateSourceText, langPair, swapLangs, sourceText, translationResult
-  } = useTranslation();
+  const { translateCurrent, updateSourceText, langPair, swapLangs, sourceText, translationResult } = useTranslation();
   const { speak } = useTextToSpeech();
   const inputTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const handlePaste = useOcrPaste(inputTextareaRef);
 
   useEffect(() => {
     const handleFocus = () => {
@@ -88,6 +89,7 @@ export default function () {
         value={sourceText}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
+        onPaste={handlePaste}
       />
       <div className="absolute bottom-1.5 right-1.5 left-1.5 flex justify-between items-center gap-2">
         {translationResult.response.sourceCorrection &&

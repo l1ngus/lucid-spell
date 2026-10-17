@@ -31,7 +31,8 @@ export default function () {
   const {
     translationResult: { response, isFetching, isError, error },
     sourceText,
-    langPair
+    langPair,
+    ocrError
   } = useTranslation();
   const { speak } = useTextToSpeech();
   const [isLiked, setIsLiked] = useState(false);
@@ -71,6 +72,8 @@ export default function () {
     addPair(dictId, pair);
   }
 
+  const displayedTranslation = ocrError ?? (isError ? error?.message : response.translation);
+
   return (
     <div className="relative">
       <div aria-busy={isFetching} className={cn(
@@ -79,8 +82,8 @@ export default function () {
       )}>
         <Textarea className={cn(
           'flex-1 resize-none min-h-40',
-          isError && 'text-destructive'
-        )} readOnly value={isError ? error?.message : response.translation} />
+          (isError || ocrError) && 'text-destructive'
+        )} readOnly aria-invalid={isError || Boolean(ocrError)} aria-live={ocrError ? 'assertive' : undefined} value={displayedTranslation} />
         <div className="absolute bottom-1.5 right-1.5 flex items-center gap-2 p-0.5">
           <Heart onClick={handleLike} className={cn('cursor-pointer', isLiked && 'fill-destructive text-destructive')} />
           <ChooseDictDialog onDictSelect={handleDictSelect} checkWhetherOpen={() => Boolean(sourceText) || Boolean(response.translation)}>

@@ -34,6 +34,8 @@ export interface TranslationContextValue {
   updateLangPair: UpdateLangPairFn;
   sourceText: string;
   updateSourceText: UpdateSourceTextFn;
+  ocrError: string | null;
+  setOcrError: (error: string | null) => void;
   swapLangs: (swapTranslation?: boolean) => void;
 }
 
@@ -46,6 +48,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren) => {
   const [langPair, setLangPair] = useState<LangPair>(getUserMeta('lastLangPair'));
   const [sourceText, setSourceText] = useState('');
   const [textForQuery, setTextForQuery] = useState('');
+  const [ocrError, setOcrError] = useState<string | null>(null);
   const translationResult = useTranslateQuery({
     engine: settings.translationEngine,
     text: textForQuery,
@@ -66,6 +69,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren) => {
   }, [])
 
   const updateSourceText: UpdateSourceTextFn = useCallback((value, withDebounce = true) => {
+    setOcrError(null);
     setSourceText(value);
     const trimmedValue = value.trim();
     if (settings.isAutoTranslateEnabled)
@@ -79,7 +83,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren) => {
         preventChangingTextForQuery();
         setTextForQuery('');
       }
-  }, [settings.isAutoTranslateEnabled]);
+  }, [settings.isAutoTranslateEnabled, setOcrError]);
 
   const swapLangs = useCallback((swapTranslation: boolean = false) => {
     setLangPair(prev => {
@@ -101,8 +105,10 @@ export const TranslationProvider = ({ children }: PropsWithChildren) => {
     updateLangPair,
     sourceText,
     updateSourceText,
+    ocrError,
+    setOcrError,
     swapLangs
-  }), [translationResult, langPair, translateCurrent, updateLangPair, sourceText, swapLangs])
+  }), [translationResult, langPair, translateCurrent, updateLangPair, sourceText, updateSourceText, ocrError, setOcrError, swapLangs])
 
   return (
     <TranslationContext.Provider value={contextValue}>

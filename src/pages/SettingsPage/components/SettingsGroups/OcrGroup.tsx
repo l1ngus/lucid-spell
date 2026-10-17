@@ -201,7 +201,7 @@ export default function OcrGroup() {
       <div className="flex items-center justify-center gap-1">
         <div className='flex items-center gap-1'>
           <GroupHeading>OCR</GroupHeading>
-        <Tooltip hint={<p>Extracts text from images using the detector and selected language models.</p>}>
+          <Tooltip hint={<p>Extracts and translates text directly from images pasted on the home screen</p>}>
             <Info className="size-4 cursor-help text-muted-foreground hover:text-foreground" aria-hidden="true" />
           </Tooltip>
         </div>
