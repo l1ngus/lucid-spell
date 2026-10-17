@@ -93,7 +93,10 @@ export default function Tooltip({
     }));
 
     const wRect = wrapperRef.current.getBoundingClientRect();
-    const tRect = tooltipRef.current.getBoundingClientRect();
+    // getBoundingClientRect() includes the entry animation's scale(0.96),
+    // which underestimates the final size and can let a wide tooltip overflow.
+    const tooltipWidth = tooltipRef.current.offsetWidth;
+    const tooltipHeight = tooltipRef.current.offsetHeight;
     const offset = 8; // gap between target and tooltip (arrow space)
 
     let finalPlacement = currentPlacement ?? placement;
@@ -105,36 +108,36 @@ export default function Tooltip({
 
     // compute primary positions
     if (finalPlacement === "top") {
-      top = wRect.top - tRect.height - offset;
-      left = centerX - tRect.width / 2;
+      top = wRect.top - tooltipHeight - offset;
+      left = centerX - tooltipWidth / 2;
     } else if (finalPlacement === "bottom") {
       top = wRect.bottom + offset;
-      left = centerX - tRect.width / 2;
+      left = centerX - tooltipWidth / 2;
     } else if (finalPlacement === "left") {
-      top = centerY - tRect.height / 2;
-      left = wRect.left - tRect.width - offset;
+      top = centerY - tooltipHeight / 2;
+      left = wRect.left - tooltipWidth - offset;
     } else {
       // right
-      top = centerY - tRect.height / 2;
+      top = centerY - tooltipHeight / 2;
       left = wRect.right + offset;
     }
 
     // clamp horizontally and vertically using viewportMargin
     const minX = viewportMargin;
     const minY = viewportMargin;
-    const maxX = window.innerWidth - tRect.width - viewportMargin;
-    const maxY = window.innerHeight - tRect.height - viewportMargin;
+    const maxX = window.innerWidth - tooltipWidth - viewportMargin;
+    const maxY = window.innerHeight - tooltipHeight - viewportMargin;
 
     // Flip logic if out of bounds
     if (finalPlacement === "top" && top < minY) {
       finalPlacement = "bottom";
       top = wRect.bottom + offset;
-      left = centerX - tRect.width / 2;
+      left = centerX - tooltipWidth / 2;
     }
     if (finalPlacement === "bottom" && top > maxY) {
       finalPlacement = "top";
-      top = wRect.top - tRect.height - offset;
-      left = centerX - tRect.width / 2;
+      top = wRect.top - tooltipHeight - offset;
+      left = centerX - tooltipWidth / 2;
     }
 
     // Apply clamping

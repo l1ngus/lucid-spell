@@ -30,7 +30,7 @@ export default function ({ label, hint, ...props }: LabelWithHintProps) {
     <Label className='flex items-center gap-1' {...props}>
       {label}:
       {hint && <Tooltip hint={hint} viewportMargin={40}>
-        <CircleAlert size="1em" />
+        <CircleAlert size="1em" className="text-muted-foreground hover:text-foreground" />
       </Tooltip>}
     </Label>
   )

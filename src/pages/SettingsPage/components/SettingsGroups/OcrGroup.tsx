@@ -201,8 +201,8 @@ export default function OcrGroup() {
       <div className="flex items-center justify-center gap-1">
         <div className='flex items-center gap-1'>
           <GroupHeading>OCR</GroupHeading>
-          <Tooltip hint={<p>Extracts and translates text directly from images pasted on the home screen</p>}>
-            <Info className="size-4 cursor-help text-muted-foreground hover:text-foreground" aria-hidden="true" />
+          <Tooltip viewportMargin={40} hint={<p>Extracts and translates text directly from images pasted on the home screen</p>}>
+            <Info className="size-4 text-muted-foreground hover:text-foreground" aria-hidden="true" />
           </Tooltip>
         </div>
       </div>
@@ -251,8 +251,8 @@ export default function OcrGroup() {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <h3 id="ocr-detector-heading" className="text-sm font-medium">Text detector</h3>
-            <Tooltip hint={<p>Finds text in images; required by all recognition models.</p>}>
-              <Info className="size-3.5 cursor-help text-muted-foreground hover:text-foreground" aria-hidden="true" />
+            <Tooltip viewportMargin={40} hint={<p>Finds text in images; required by all recognition models.</p>}>
+              <Info className="size-3.5 text-muted-foreground hover:text-foreground" aria-hidden="true" />
             </Tooltip>
             {status?.detectionLoaded ? (
               <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium leading-none text-primary">
@@ -286,8 +286,8 @@ export default function OcrGroup() {
       <div className="flex items-end justify-between gap-3 pt-1">
         <div className="flex items-center gap-1.5">
           <h3 className="font-semibold">Recognition models</h3>
-          <Tooltip hint={<p>Reads text in supported languages. Install only the languages you need.</p>}>
-            <Info className="size-3.5 cursor-help text-muted-foreground hover:text-foreground" aria-hidden="true" />
+          <Tooltip viewportMargin={40} hint={<p>Reads text in supported languages. Install only the languages you need.</p>}>
+            <Info className="size-3.5 text-muted-foreground hover:text-foreground" aria-hidden="true" />
           </Tooltip>
         </div>
         {!isLoading && status && (
