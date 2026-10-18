@@ -47,7 +47,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ runner.temp }}/onnxruntime-build/MacOS
-          key: onnxruntime-1.31.0-macos-15-intel-x86_64-static-v2
+          key: onnxruntime-1.31.0-macos-15-intel-x86_64-static-v3
 
       - name: Build ONNX Runtime for Intel macOS
         id: build-ort
@@ -74,13 +74,18 @@ jobs:
             --osx_arch x86_64 \
             --apple_deploy_target 13.4 \
             --cmake_extra_defines onnxruntime_BUILD_UNIT_TESTS=OFF
+          # re2 must exist even with unit tests disabled: ort-sys links it
+          # unconditionally (`-l static=re2`), while ORT only declares it with
+          # EXCLUDE_FROM_ALL, so nothing pulls it into the default build.
+          # build.py configures into <build_dir>/Release — build the target there.
+          cmake --build "$ORT_BUILD_DIR/Release" --config Release --target re2 --parallel 3
 
       - name: Save Intel ONNX Runtime cache
         if: always() && matrix.target == 'x86_64-apple-darwin' && steps.build-ort.outcome == 'success' && steps.ort-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
           path: ${{ runner.temp }}/onnxruntime-build/MacOS
-          key: onnxruntime-1.31.0-macos-15-intel-x86_64-static-v2
+          key: onnxruntime-1.31.0-macos-15-intel-x86_64-static-v3
 
       - name: Configure and validate Intel ONNX Runtime
         if: matrix.target == 'x86_64-apple-darwin'
