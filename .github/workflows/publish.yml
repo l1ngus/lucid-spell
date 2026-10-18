@@ -41,15 +41,16 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      - name: Cache Intel ONNX Runtime
+      - name: Restore Intel ONNX Runtime cache
         id: ort-cache
         if: matrix.target == 'x86_64-apple-darwin'
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: ${{ runner.temp }}/onnxruntime-build/MacOS
-          key: onnxruntime-1.31.0-macos-15-intel-x86_64-static-v1
+          key: onnxruntime-1.31.0-macos-15-intel-x86_64-static-v2
 
       - name: Build ONNX Runtime for Intel macOS
+        id: build-ort
         if: matrix.target == 'x86_64-apple-darwin' && steps.ort-cache.outputs.cache-hit != 'true'
         env:
           ORT_SOURCE_DIR: ${{ runner.temp }}/onnxruntime-source
@@ -58,6 +59,11 @@ jobs:
           git clone --depth 1 --branch v1.31.0 --recurse-submodules \
             https://github.com/microsoft/onnxruntime.git "$ORT_SOURCE_DIR"
           cd "$ORT_SOURCE_DIR"
+          # Unit tests must stay disabled (--skip_tests only skips running them):
+          # their executables are written to <build>/Release/Release, and ort-sys
+          # treats <lib_dir>/Release as the library directory whenever it exists,
+          # which breaks linking with "could not find native static library
+          # onnxruntime_common".
           python3 tools/ci_build/build.py \
             --build_dir "$ORT_BUILD_DIR" \
             --config Release \
@@ -66,16 +72,145 @@ jobs:
             --skip_submodule_sync \
             --no_telemetry \
             --osx_arch x86_64 \
-            --apple_deploy_target 13.4
+            --apple_deploy_target 13.4 \
+            --cmake_extra_defines onnxruntime_BUILD_UNIT_TESTS=OFF
 
-      - name: Configure Intel ONNX Runtime
+      - name: Save Intel ONNX Runtime cache
+        if: always() && matrix.target == 'x86_64-apple-darwin' && steps.build-ort.outcome == 'success' && steps.ort-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/onnxruntime-build/MacOS
+          key: onnxruntime-1.31.0-macos-15-intel-x86_64-static-v2
+
+      - name: Configure and validate Intel ONNX Runtime
         if: matrix.target == 'x86_64-apple-darwin'
         env:
           ORT_LIB_PATH: ${{ runner.temp }}/onnxruntime-build/MacOS/Release
         run: |
-          test -d "$ORT_LIB_PATH"
-          find "$ORT_LIB_PATH" -type f -name 'libonnxruntime*.a' -print -quit | grep -q .
+          set -euo pipefail
+
+          if [ ! -d "$ORT_LIB_PATH" ]; then
+            echo "::error::ORT_LIB_PATH does not exist: $ORT_LIB_PATH"
+            find "$(dirname "$ORT_LIB_PATH")" -maxdepth 2 || true
+            exit 1
+          fi
+
+          # ort-sys repoints -L into <dir>/Release (or <dir>/Debug) whenever such a
+          # subdirectory exists, even when the archives live directly in <dir>.
+          # Drop leftovers that would hijack the library search path.
+          for cfg in Release RelWithDebInfo MinSizeRel Debug; do
+            if [ -d "$ORT_LIB_PATH/$cfg" ] && [ ! -f "$ORT_LIB_PATH/$cfg/libonnxruntime_common.a" ]; then
+              echo "Removing stale directory that would hijack ort-sys linking: $ORT_LIB_PATH/$cfg"
+              rm -rf "$ORT_LIB_PATH/$cfg"
+            fi
+          done
+
+          # ort-sys resolves libraries relative to ORT_LIB_PATH, falling back to
+          # <dir>/Release or <dir>/Debug when that exists. Mirror that logic and
+          # fail here instead of deep inside the Tauri Rust build.
+          ort_eff_dir() {
+            if [ -d "$1/Release" ]; then printf '%s' "$1/Release"
+            elif [ -d "$1/Debug" ]; then printf '%s' "$1/Debug"
+            else printf '%s' "$1"
+            fi
+          }
+
+          missing=""
+
+          # Unconditional links: the flag is always emitted, so the archive must
+          # be present in the effective search directory.
+          req() {
+            local d="$ORT_LIB_PATH/$1"; shift
+            local eff; eff="$(ort_eff_dir "$d")"
+            local f
+            for f in "$@"; do
+              [ -f "$eff/$f" ] || missing="$missing $eff/$f"
+            done
+          }
+
+          # Conditional links: the flag is emitted only when the archive exists in
+          # the unredirected directory, but the search path is the redirected one.
+          req_if_present() {
+            local d="$ORT_LIB_PATH/$1"; shift
+            local eff; eff="$(ort_eff_dir "$d")"
+            local f
+            for f in "$@"; do
+              if [ -f "$d/$f" ] && [ ! -f "$eff/$f" ]; then
+                missing="$missing $eff/$f"
+              fi
+            done
+          }
+
+          comp_eff="$(ort_eff_dir "$ORT_LIB_PATH")"
+          for c in common flatbuffers framework graph lora mlas optimizer providers session util; do
+            [ -f "$ORT_LIB_PATH/libonnxruntime_$c.a" ] || missing="$missing $ORT_LIB_PATH/libonnxruntime_$c.a"
+            [ -f "$comp_eff/libonnxruntime_$c.a" ] || missing="$missing $comp_eff/libonnxruntime_$c.a"
+          done
+
+          req _deps/onnx-build libonnx.a libonnx_proto.a
+          req _deps/re2-build libre2.a
+          req _deps/pytorch_cpuinfo-build libcpuinfo.a
+          req _deps/abseil_cpp-build/absl/base libabsl_base.a libabsl_spinlock_wait.a \
+            libabsl_malloc_internal.a libabsl_strerror.a libabsl_raw_logging_internal.a libabsl_throw_delegate.a
+          req _deps/abseil_cpp-build/absl/debugging libabsl_examine_stack.a libabsl_debugging_internal.a \
+            libabsl_demangle_internal.a libabsl_demangle_rust.a libabsl_decode_rust_punycode.a \
+            libabsl_utf8_for_code_point.a libabsl_symbolize.a libabsl_stacktrace.a
+          req _deps/abseil_cpp-build/absl/hash libabsl_hash.a libabsl_city.a
+          req _deps/abseil_cpp-build/absl/container libabsl_hashtablez_sampler.a libabsl_raw_hash_set.a
+          req _deps/abseil_cpp-build/absl/synchronization libabsl_kernel_timeout_internal.a \
+            libabsl_graphcycles_internal.a libabsl_synchronization.a
+          req _deps/abseil_cpp-build/absl/time libabsl_time_zone.a libabsl_time.a
+          req _deps/abseil_cpp-build/absl/numeric libabsl_int128.a
+          req _deps/abseil_cpp-build/absl/strings libabsl_str_format_internal.a libabsl_strings.a \
+            libabsl_string_view.a libabsl_strings_internal.a
+          req _deps/abseil_cpp-build/absl/log libabsl_log_globals.a libabsl_log_internal_format.a \
+            libabsl_log_internal_proto.a libabsl_log_internal_globals.a libabsl_log_internal_log_sink_set.a \
+            libabsl_log_sink.a libabsl_log_internal_message.a
+
+          req_if_present _deps/protobuf-build libprotobuf.a libprotobuf-lite.a libprotobuf-lited.a
+          req_if_present _deps/protobuf-build/third_party/utf8_range libutf8_validity.a libutf8_range.a
+          req_if_present model_package libmodel_package.a
+          req_if_present _deps/google_nsync-build libnsync_cpp.a
+          req_if_present _deps/pytorch_cpuinfo-build/deps/clog libclog.a
+          req_if_present _deps/pytorch_clog-build libclog.a
+          req_if_present _deps/abseil_cpp-build/absl/hash libabsl_low_level_hash.a
+          req_if_present _deps/abseil_cpp-build/absl/status libabsl_statusor.a libabsl_status.a
+          req_if_present _deps/abseil_cpp-build/absl/strings libabsl_cord.a libabsl_cord_internal.a \
+            libabsl_cordz_info.a libabsl_cordz_handle.a libabsl_cordz_functions.a
+          req_if_present _deps/abseil_cpp-build/absl/crc libabsl_crc_cord_state.a libabsl_crc32c.a \
+            libabsl_crc_internal.a libabsl_crc_cpu_detect.a
+          req_if_present _deps/abseil_cpp-build/absl/profiling libabsl_exponential_biased.a
+          req_if_present _deps/abseil_cpp-build/absl/debugging libabsl_leak_check.a
+          req_if_present _deps/abseil_cpp-build/absl/log libabsl_log_internal_check_op.a \
+            libabsl_log_internal_structured_proto.a libabsl_log_internal_nullguard.a \
+            libabsl_log_internal_conditions.a libabsl_log_internal_fnmatch.a
+
+          if [ -n "$missing" ]; then
+            echo "::error::Unexpected ONNX Runtime layout, missing: $(printf '%s\n' $missing | sort -u | tr '\n' ' ')"
+            echo "--- archives directly in $ORT_LIB_PATH ---"
+            find "$ORT_LIB_PATH" -maxdepth 1 -name '*.a' | sort || true
+            echo "--- all archives under the build root ---"
+            find "$(dirname "$ORT_LIB_PATH")" -name '*.a' | sort | head -200 || true
+            exit 1
+          fi
+
           echo "ORT_LIB_PATH=$ORT_LIB_PATH" >> "$GITHUB_ENV"
+          echo "ONNX Runtime layout OK: all required static libraries are in place"
+
+      - name: Verify ort-sys native linking
+        if: matrix.target == 'x86_64-apple-darwin'
+        working-directory: src-tauri
+        run: |
+          set -o pipefail
+          # Compiling ort-sys alone goes through the same native library
+          # resolution as the full app build; -vv records the exact -L/-l flags.
+          if ! cargo build --release --target x86_64-apple-darwin -p ort-sys -vv > "$RUNNER_TEMP/ort-sys-link.log" 2>&1; then
+            grep -E "\[ort-sys\]|could not find native static library|^error" "$RUNNER_TEMP/ort-sys-link.log" | tail -60 || true
+            echo "::error::ort-sys failed to resolve the native ONNX Runtime libraries"
+            exit 1
+          fi
+          grep -E "\[ort-sys\] \[(DEBUG|WARN)\]" "$RUNNER_TEMP/ort-sys-link.log" | tail -40 || true
+          echo "ort-sys native linking OK"
 
       - name: Install system dependencies (Linux only)
         if: matrix.platform == 'ubuntu-24.04'
