@@ -39,7 +39,7 @@ reqwest = { version = "0.13.5", features = [
 ], default-features = false }
 rustls = { version = "0.23", features = ["ring"] }
 rodio = { version = "0.21", features = ["symphonia-all"] }
-msedge-tts = { version = "0.4", features = [
+msedge-tts = { version = "0.4.1", features = [
   "tokio-runtime",
 ], default-features = false }
 keyring = { version = "4.2.0", features = [
