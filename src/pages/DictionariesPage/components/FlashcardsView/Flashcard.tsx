@@ -17,6 +17,7 @@
 
 import { cn } from '@/lib/utils';
 import { useState, useImperativeHandle, forwardRef } from 'react';
+import SpeakButton from '@/components/SpeakButton';
 
 export interface FlashcardRef {
   triggerScale: () => void;
@@ -32,6 +33,7 @@ interface FlashcardProps {
 const Flashcard = forwardRef<FlashcardRef, FlashcardProps>(
   ({ isFlipped, onFlip, sourceText, targetText }, ref) => {
     const [isScaling, setIsScaling] = useState(false);
+    const displayedText = isFlipped ? targetText : sourceText;
 
     useImperativeHandle(ref, () => ({
       triggerScale: () => {
@@ -46,13 +48,16 @@ const Flashcard = forwardRef<FlashcardRef, FlashcardProps>(
       <div
         onPointerDown={onFlip}
         className={cn(
-          "flex justify-center cursor-pointer items-start px-3 py-1 w-60 h-36 mx-auto my-auto font-bold border select-none rounded-md bg-input/40 transition-transform duration-200 overflow-y-auto",
+          "relative w-60 h-36 mx-auto my-auto font-bold border select-none rounded-md bg-input/40 cursor-pointer transition-transform duration-200",
           isScaling ? 'scale-95' : 'scale-100'
         )}
       >
-        <span className="max-w-full my-auto wrap-break-word">
-          {isFlipped ? targetText : sourceText}
-        </span>
+        <div className="flex h-full items-start justify-center px-3 py-1 overflow-y-auto">
+          <span className="max-w-full my-auto px-6 wrap-break-word">
+            {displayedText}
+          </span>
+        </div>
+        <SpeakButton text={displayedText} className="absolute top-1.5 right-1.5 z-10" />
       </div>
     );
   }

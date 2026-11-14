@@ -23,7 +23,7 @@ import isShortcutPressed from '@/app/helpers/isShortcutPressed';
 import useTranslation from '../hooks/useTranslation';
 import useSettings from '@/app/hooks/useSettings';
 import useDetectAndSwap from '../hooks/useDetectAndSwap';
-import useTextToSpeech from '../hooks/useTextToSpeech';
+import useTextToSpeech from '@/app/hooks/useTextToSpeech';
 import useOcrPaste from '../hooks/useOcrPaste';
 
 

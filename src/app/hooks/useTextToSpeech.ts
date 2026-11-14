@@ -15,19 +15,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { useCallback, useRef, useState } from 'react';
 import { commands } from '@/bindings';
 import useSettings from '@/app/hooks/useSettings';
 
-export default function () {
-  const { settings } = useSettings()
+export default function useTextToSpeech() {
+  const { settings } = useSettings();
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const isSpeakingRef = useRef(false);
 
-  const speak = async (text: string) => {
-    const res = await commands.speak(text, settings.voice);
-    if (res.status === "error") {
-      console.error(res.error);
-      return;
+  const speak = useCallback(async (text: string) => {
+    const trimmedText = text.trim();
+    if (!trimmedText || isSpeakingRef.current) return;
+
+    isSpeakingRef.current = true;
+    setIsSpeaking(true);
+
+    try {
+      const res = await commands.speak(trimmedText, settings.voice);
+      if (res.status === 'error') {
+        console.error(res.error);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      isSpeakingRef.current = false;
+      setIsSpeaking(false);
     }
-  }
+  }, [settings.voice]);
 
-  return { speak }
+  return { speak, isSpeaking };
 }

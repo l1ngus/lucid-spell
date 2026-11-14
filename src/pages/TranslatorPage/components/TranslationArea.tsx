@@ -21,7 +21,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Volume2, Heart, BookPlus } from 'lucide-react';
 import useTranslation from '../hooks/useTranslation';
 import { cn } from '@/lib/utils';
-import useTextToSpeech from '../hooks/useTextToSpeech';
+import useTextToSpeech from '@/app/hooks/useTextToSpeech';
 import { addFavoriteTranslation, isTranslationFavorite, removeFavoriteTranslationByContent } from '@/app/stores/favoritesStore';
 import ChooseDictDialog from './ChooseDictDialog';
 import { addPair } from '@/app/stores/dictionariesStore';
